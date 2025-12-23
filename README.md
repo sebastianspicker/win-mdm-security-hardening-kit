@@ -22,7 +22,7 @@ Typical use cases:
 ## Quick start (safe defaults)
 ### 1) Clone
 ```
-git clone https://github.com/<your-org-or-user>/win-mdm-security-hardening-kit.git
+git clone https://github.com/sebastianspicker/win-mdm-security-hardening-kit.git
 cd win-mdm-security-hardening-kit
 ```
 
@@ -122,4 +122,3 @@ sh.Run cmd, 1, True
 
 ## Disclaimer
 These scripts are provided “as-is” without warranty. You are responsible for validation, compliance, and safe deployment.
-```
