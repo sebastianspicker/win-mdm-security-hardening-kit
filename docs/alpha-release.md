@@ -126,7 +126,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -Command "Import-Module PSScriptAnalyzer
 ```
 
 `verify.ps1 -SkipAnalyzer` is a partial parse-only check, not a substitute for
-the complete gate. Pester, Node, and `scripts/ci-local.sh` require a full checkout
+the complete gate. Pester and `scripts/ci-local.sh` require a full checkout
 of the release tag. The operator ZIP deliberately excludes `scripts/ci-local.sh`,
 `tests/`.
 

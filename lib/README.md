@@ -12,7 +12,8 @@ The modules in `lib/` provide common validation, execution, output, and Windows 
 | `EventLog.psm1` | Event source creation and health-event writes |
 | `Evidence.psm1` | Environment expansion, SHA-256 calculation, and evidence copies |
 | `Execution.psm1` | Argument-token parsing and bounded child-script execution |
-| `External.psm1` | Native command execution and wrappers for Windows command-line tools |
+| `External.psm1` | Stable facade for native command execution and Windows command-line tools |
+| `JsonInput.psm1` | Private bounded UTF-8 JSON read and parse primitive for shared adapters |
 | `JsonCatalog.psm1` | JSON catalog reads with status or data-only return values |
 | `Output.psm1` | Capture-friendly sections, key/value lines, warnings, and status output |
 | `Registry.psm1` | Registry reads, writes, existence checks, and removal helpers |
@@ -39,9 +40,16 @@ Use these boundaries when adding shared behavior:
 - Use `Execution.psm1` for child PowerShell invocation through the runner path.
 - Use `External.psm1` for bounded native process calls and Windows command wrappers.
 - Use `Validation.psm1` for untrusted names, paths, references, URLs, and bounded text files.
+- `JsonInput.psm1` is the low-level bounded UTF-8 JSON primitive; keep caller-specific fallback and status behavior in its adapter.
 - Use `Config.psm1` or `JsonCatalog.psm1` instead of direct, repeated JSON-loading code.
 
 Do not add a second implementation of path validation, native process capture, result serialization, or finding creation inside an endpoint script.
+
+`External.psm1` keeps the public command contract in one place and dot-sources
+focused private implementations from `lib/platform/`: executable resolution and
+trust, the isolated native process boundary, fixed native-tool adapters, and
+event-log, scheduled-task, and registry operations. Import `External.psm1`,
+not an implementation file.
 
 ## v2 result object
 

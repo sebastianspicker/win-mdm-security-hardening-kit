@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Mirrors the fail-closed CI toolchain and gate order locally so contributors can
-# distinguish a complete release check from intentionally skipped partial runs.
+# Runs the portable PowerShell 7 source, documentation, and test gates in CI
+# order. Windows PowerShell, protected-workspace, and LocalSystem lanes remain
+# Windows CI responsibilities.
 set -euo pipefail
 
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -14,6 +15,7 @@ skip_tests="${CI_SKIP_TESTS:-}"
 
 runtime_status="NOT_RUN"
 secret_status="NOT_RUN"
+documentation_status="NOT_RUN"
 static_status="NOT_RUN"
 analyzer_status="NOT_RUN"
 tests_status="NOT_RUN"
@@ -27,14 +29,15 @@ print_summary() {
   summary_printed=1
   echo
   echo "CI gate summary"
-  printf '| %-12s | %-8s |\n' "Gate" "Status"
-  printf '| %-12s | %-8s |\n' "------------" "--------"
-  printf '| %-12s | %-8s |\n' "Runtime" "$runtime_status"
-  printf '| %-12s | %-8s |\n' "SecretScan" "$secret_status"
-  printf '| %-12s | %-8s |\n' "Static" "$static_status"
-  printf '| %-12s | %-8s |\n' "Analyzer" "$analyzer_status"
-  printf '| %-12s | %-8s |\n' "Tests" "$tests_status"
-  printf '| %-12s | %-8s |\n' "Overall" "$overall_status"
+  printf '| %-13s | %-8s |\n' "Gate" "Status"
+  printf '| %-13s | %-8s |\n' "-------------" "--------"
+  printf '| %-13s | %-8s |\n' "Runtime" "$runtime_status"
+  printf '| %-13s | %-8s |\n' "SecretScan" "$secret_status"
+  printf '| %-13s | %-8s |\n' "Documentation" "$documentation_status"
+  printf '| %-13s | %-8s |\n' "Static" "$static_status"
+  printf '| %-13s | %-8s |\n' "Analyzer" "$analyzer_status"
+  printf '| %-13s | %-8s |\n' "Tests" "$tests_status"
+  printf '| %-13s | %-8s |\n' "Overall" "$overall_status"
 }
 
 fail_with_summary() {
@@ -114,6 +117,14 @@ if "$pwsh_bin" -NoProfile -File "$root_dir/tools/secret-scan.ps1" -RootPath "$ro
   secret_status="PASS"
 else
   secret_status="FAILED"
+  fail_with_summary 1
+fi
+
+documentation_status="RUN"
+if "$pwsh_bin" -NoProfile -File "$root_dir/tools/Test-Documentation.ps1" -RootPath "$root_dir"; then
+  documentation_status="PASS"
+else
+  documentation_status="FAILED"
   fail_with_summary 1
 fi
 

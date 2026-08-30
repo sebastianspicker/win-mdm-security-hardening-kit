@@ -1,35 +1,23 @@
-# OS and editor
-/.mcp.json
+# Operating systems and editors
 .DS_Store
 Thumbs.db
-.vscode/
-.idea/
-.cursor/
-.agents/
-.continue/
-.codex/
-.codegraph/
-.serena/
-.windsurf/
-.aider*
+Desktop.ini
+/.vscode/
+/.idea/
 
-# PowerShell
+# PowerShell and temporary files
 *.ps1~
 *.psm1~
 *.psd1~
-
-# Logs and outputs
-*.log
 *.tmp
 *.temp
 *.bak
 *.old
 *.orig
 *.rej
-*.local
-*.local.*
+*.log
 
-# Generated artifacts (may contain sensitive data)
+# Endpoint evidence and generated output
 *.csv
 *.tsv
 *.jsonl
@@ -40,17 +28,9 @@ Thumbs.db
 *.dmp
 *.har
 *.clixml
-*.nupkg
-*.db
-*.sqlite
-*.sqlite3
-
-# Allow reviewed example inputs despite the artifact extensions above.
 !/examples/**/*.csv
 !/examples/**/*.tsv
 !/examples/**/*.jsonl
-
-# Common output folders (support bundles / proofs)
 /support/
 /proof/
 /proofs/
@@ -59,151 +39,115 @@ Thumbs.db
 /eventlogs/
 /defender/
 /defender-support/
-/_extracted/
+/recordings/
 /tmp/
 /temp/
-/recordings/
 
-# Environment files and credentials
+# Test and build output
+/testResults.xml
+/junit.xml
+/junit-*.xml
+*.trx
+*.sarif
+/test-results/
+/coverage/
+/dist/
+/build/
+/out/
+/_extracted/
+/.ci-artifacts/
+
+# Local environment and credentials
 .env
 .env.*
 !.env.example
 !.env.sample
 !.env.template
 .envrc
-.direnv/
+/.direnv/
+*.local
+*.local.*
+.netrc
+_netrc
+*.db
+*.sqlite
+*.sqlite3
+*.keystore
 *.pem
 *.key
 *.pfx
 *.p12
-*.cer
+*.pk8
+*.pkcs8
 *.jks
 *.kdbx
 *.ppk
 id_rsa
 id_ed25519
-*.keystore
-credentials/
-secrets/
+/credentials/
+/secrets/
+secrets.local.*
+credentials.local.*
 
-# Local docs (findings/logs/decisions)
-/DECISIONS.md
-/FINDINGS.md
-/LOG.md
-/REFACTOR_PLAN.md
-/PHYSICS_AUDIT.md
-/validation.md
-/HANDOFF.md
-/progress.md
-/RELEASE_STATUS.md
+# Local analysis and workspace state
+/.mcp.json
+/.codacy/
+/.codegraph/
+/.repowise/
+/.serena/
+/.cache/
+/.codex-worktrees/
 
-# Development artifacts
-/ralph-loop/
-/plans/
-/.claude/
-/.codacy/*
-!/.codacy/codacy.config.json
-!/.codacy/codacy.yaml
-!/.codacy/codacy.yml
-/.codacy/codacy.config.json
-/.codacy/codacy.yaml
-
-# Local-only workspace and release-readiness state
-/AGENTS.md
+# Coding-assistant state and instructions
 /AGENT.md
+/AGENTS.md
+/agent.md
+/agents.md
 /CLAUDE.md
 /CODEX.md
 /GEMINI.md
-/AUDIT.md
-/private/
-/docs/agent/
+/.agent/
+/.agents/
+/.ai/
+/.claude/
+/.codex/
+/.continue/
+/.cursor/
+/.windsurf/
+/.aider*
+/.cursorrules
+/prompt/
+/prompts/
+/agent-prompts/
+/ai-prompts/
+/agent-context*
+/agent-memory*
+/agent-notes*
+/agent-output*
+/agent-report*
+/AI_AUDIT*
+/AI_NOTES*
+/AI_REPORT*
+/AI_SUMMARY*
 /.github/agents/
 /.github/codex/
 /.github/copilot-instructions.md
 /.github/instructions/
 /.github/prompts/
 /.github/workflows/codex.yml
-/HARNESS_PRINCIPLES.md
-/code_review.md
-/archive/
-/scripts/topology_inventory.sh
 
-# Vendored, copied, or external source trees
-/vendor/
-/third_party/
-/third-party/
-/external/
-
-# CI/test artifacts
-test-results/
-testResults.xml
-junit.xml
-*.sarif
-*.trx
-.nyc_output/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.cache/
-.terraform/
-.venv/
-venv/
-__pycache__/
-*.py[cod]
-node_modules/
-dist/
-build/
-out/
-
-# Shared local indexes and operator records
-.repowise/
-/.kilo/
+# Local development records
+/AUDIT.md
 /AUDIT_LEDGER.md
-/remediation-ledger.md
+/FINDINGS.md
+/HANDOFF.md
+/REFACTOR_PLAN.md
+/RELEASE_STATUS.md
 /plan.md
-
-# Public environment templates
-!.env.*.example
-
-# Local-only credentials
-secrets.local.*
-credentials.local.*
-*.local.pem
-*.local.key
-
-# Python caches and test reports
-.pyright/
-.hypothesis/
-.tox/
-.nox/
-junit*.xml
-
-# Shared build output
-target/
-.build/
-DerivedData/
-xcuserdata/
-
-# Local database sidecars
-*.local.db
-*.local.sqlite
-*.local.sqlite3
-*.db-shm
-*.db-wal
-*.sqlite-shm
-*.sqlite-wal
-*.sqlite3-shm
-*.sqlite3-wal
-
-# Generated test and coverage output (local only)
-/coverage/
-/htmlcov/
-/.coverage
-/.coverage.*
-/.pytest_cache/
-/test-results/
-/playwright-report/
-/blob-report/
-/coverage.xml
-/junit.xml
-/junit-*.xml
+/plans/
+/progress.md
+/scratchpad*
+/worklog*
+/devlog*
+/*-ledger.md
+/*_ledger.md

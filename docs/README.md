@@ -4,7 +4,8 @@ Start with the [project README](../README.md) for requirements, installation, co
 
 Repository references:
 
-- [Rust v3 implementation and release status](rust-v3.md)
+- [Architecture and dependency boundaries](architecture.md)
+- [ADR 0001: one release-qualified runtime](decisions/0001-single-runtime.md)
 - [Release packaging and protected Windows installation](alpha-release.md)
 - [Windows Forms launcher](launcher-gui.md)
 - [Endpoint and orchestration script catalog](../scripts/README.md)

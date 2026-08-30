@@ -223,7 +223,7 @@ jobs:
           unzip -q "dist/${RELEASE_ASSET}" -d "${package_root}"
 
           for prohibited in \
-            .agents .codex .github node_modules package.json package-lock.json \
+            .agents .codex .github \
             private tests RELEASE_STATUS.md scripts/ci-local.sh; do
             if [[ -e "${package_root}/${prohibited}" ]]; then
               printf 'Prohibited release path: %s\n' "${prohibited}" >&2

@@ -11,7 +11,6 @@ Changes to endpoint audit and remediation code can affect privileged Windows sta
 - Windows PowerShell 5.1 for compatibility checks
 - A disposable Windows test device for changes that depend on endpoint features or remediation
 
-
 ## Change workflow
 
 1. Create a branch from the intended base branch.
@@ -26,7 +25,10 @@ Call out changes to profile parsing, dependency handling, remediation, integrity
 
 ## Source requirements
 
-- Keep common behavior in `lib/` and script-specific helpers in `scripts/internal/`.
+- Follow the dependency map in `docs/architecture.md`: capability policy stays
+  in its numbered script, genuinely shared behavior belongs in `lib/`, private
+  platform implementation belongs in `lib/platform/`, and capability-specific
+  helpers belong in `scripts/internal/`.
 - Do not expose files under `scripts/internal/` or `scripts/_lib/` as operator entry points.
 - Treat profiles, configuration files, paths, URLs, native output, and arguments as untrusted input.
 - Preserve runner-owned mode, root, output, confirmation, signature, and hash controls.
@@ -117,9 +119,9 @@ Public Markdown belongs in one of these maintained locations:
 
 Add durable documents to [docs/README.md](docs/README.md). Verify every local link with `tools/Test-Documentation.ps1`. Do not add machine-specific notes, private operational data, screenshots containing endpoint identifiers, or unverified test counts.
 
-Only `docs/README.md` and `docs/launcher-gui.md` are currently allowlisted under
-`docs/`. Add any new durable public document to the index, `.gitignore` allowlist,
-and public-surface verifier in the same change. Keep private or generated
+The reviewed `docs/` surface is allowlisted by `tools/verify.ps1`. Add any new
+durable public document to the index and public-surface verifier in the same
+change. Keep private or generated
 material in ignored local lanes; never force-add it.
 
 Do not report vulnerabilities in a public pull request or issue. Follow [SECURITY.md](SECURITY.md).
