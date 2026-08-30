@@ -9,7 +9,7 @@ For JSON writing, use Save-Json from Serialization.psm1.
 
 Set-StrictMode -Version Latest
 
-Import-Module (Join-Path $PSScriptRoot 'Validation.psm1')
+Import-Module (Join-Path $PSScriptRoot 'JsonInput.psm1')
 
 <#
 .SYNOPSIS
@@ -42,34 +42,34 @@ function Read-JsonFileWithStatus {
   }
 
   try {
-    $raw = Get-BoundedUtf8FileContent -Path $Path -MaximumBytes 1048576
+    $jsonInput = JsonInput\Read-BoundedUtf8JsonInput -Path $Path -MaximumBytes 1048576
   } catch {
     $meta.Status = 'Unreadable'
     $meta.Error = $_.Exception.Message
     return [pscustomobject]@{ Data = $null; Meta = $meta }
   }
 
-  if ([string]::IsNullOrWhiteSpace($raw)) {
+  if ([string]::IsNullOrWhiteSpace($jsonInput.Text)) {
     $meta.Status = 'Empty'
     $meta.Error = 'JSON file is empty.'
     return [pscustomobject]@{ Data = $null; Meta = $meta }
   }
 
-  try {
-    $data = $raw | ConvertFrom-Json -ErrorAction Stop
-    if ($null -eq $data) {
-      $meta.Status = 'Invalid'
-      $meta.Error = 'JSON did not produce a configuration object.'
-      return [pscustomobject]@{ Data = $null; Meta = $meta }
-    }
-    $meta.Loaded = $true
-    $meta.Status = 'Loaded'
-    return [pscustomobject]@{ Data = $data; Meta = $meta }
-  } catch {
+  if ($null -ne $jsonInput.ParseError) {
     $meta.Status = 'Invalid'
-    $meta.Error = $_.Exception.Message
+    $meta.Error = $jsonInput.ParseError.Message
     return [pscustomobject]@{ Data = $null; Meta = $meta }
   }
+
+  $data = $jsonInput.Data
+  if ($null -eq $data) {
+    $meta.Status = 'Invalid'
+    $meta.Error = 'JSON did not produce a configuration object.'
+    return [pscustomobject]@{ Data = $null; Meta = $meta }
+  }
+  $meta.Loaded = $true
+  $meta.Status = 'Loaded'
+  return [pscustomobject]@{ Data = $data; Meta = $meta }
 }
 
 <#

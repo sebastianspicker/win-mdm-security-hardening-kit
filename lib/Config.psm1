@@ -9,7 +9,7 @@ defaults, and convert PSCustomObjects to hashtables.
 
 Set-StrictMode -Version Latest
 
-Import-Module (Join-Path $PSScriptRoot 'Validation.psm1')
+Import-Module (Join-Path $PSScriptRoot 'JsonInput.psm1')
 
 <#
 .SYNOPSIS
@@ -194,8 +194,8 @@ function Read-ConfigWithDefaults {
   $Path = $sanitized # Use sanitized path for Get-Content
 
   try {
-    $raw = Validation\Get-BoundedUtf8FileContent -Path $Path -MaximumBytes 1048576
-    if ([string]::IsNullOrWhiteSpace($raw)) {
+    $jsonInput = JsonInput\Read-BoundedUtf8JsonInput -Path $Path -MaximumBytes 1048576
+    if ([string]::IsNullOrWhiteSpace($jsonInput.Text)) {
       return Complete-ConfigFallback `
         -Config $config -Meta $meta `
         -Reason 'Config file is empty.' -ErrorMessage 'Config file is empty.' `
@@ -203,7 +203,11 @@ function Read-ConfigWithDefaults {
         -AsHashtable:$AsHashtable -ReturnNull:$ReturnNullOnError -OnWarning $OnWarning
     }
 
-    $obj = $raw | ConvertFrom-Json -ErrorAction Stop
+    if ($null -ne $jsonInput.ParseError) {
+      throw $jsonInput.ParseError
+    }
+
+    $obj = $jsonInput.Data
     if ($null -eq $obj) {
       return Complete-ConfigFallback `
         -Config $config -Meta $meta `
