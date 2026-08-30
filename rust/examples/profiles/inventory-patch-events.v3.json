@@ -1,0 +1,49 @@
+{
+  "schema_version": "3.0",
+  "profile_id": "44444444-4444-4444-8444-444444444444",
+  "name": "Software, patch, and event triage audit",
+  "version": "1.0.0",
+  "description": "Bounded native inventory profile with an operator-supplied patch feed.",
+  "created_at": "2026-08-10T00:00:00Z",
+  "defaults": {
+    "continue_on_error": false
+  },
+  "steps": [
+    {
+      "step_id": "55555555-5555-4555-8555-555555555555",
+      "capability_id": "v3.software.inventory"
+    },
+    {
+      "step_id": "66666666-6666-4666-8666-666666666666",
+      "capability_id": "v3.patch.missing",
+      "depends_on": [
+        "55555555-5555-4555-8555-555555555555"
+      ],
+      "parameters": {
+        "entries": [
+          {
+            "kb": "KB5030219",
+            "title": "Example curated security update",
+            "is_zero_day": false,
+            "severity": "high"
+          }
+        ]
+      }
+    },
+    {
+      "step_id": "77777777-7777-4777-8777-777777777777",
+      "capability_id": "v3.eventlog.fast-triage",
+      "depends_on": [
+        "66666666-6666-4666-8666-666666666666"
+      ],
+      "parameters": {
+        "channel": "System",
+        "xpath": "*",
+        "max_records": 100,
+        "timeout_ms": 5000,
+        "max_xml_bytes": 65536,
+        "max_message_bytes": 0
+      }
+    }
+  ]
+}

@@ -1,9 +1,15 @@
 # Architecture
 
-BaselineOps is a file-distributed PowerShell application for inspecting and
-changing Windows endpoint state. It has no service, database, plugin system, or
-remote control plane. Operators invoke a capability directly, through an
-orchestrator, or through the Windows Forms launcher.
+The supported BaselineOps product is a file-distributed PowerShell application
+for inspecting and changing Windows endpoint state. It has no service,
+database, plugin system, or remote control plane. Operators invoke a capability
+directly, through an orchestrator, or through the Windows Forms launcher.
+
+The repository also contains a separate, unreleased Rust v3 workspace. It has
+its own schemas, applications, build, evidence ledger, and release gates. It is
+not a dependency of the PowerShell application and may not claim capability
+parity until its own ledger and Windows evidence close. See
+[Rust v3 implementation status](rust-v3.md).
 
 ## Components and dependency direction
 
@@ -85,10 +91,12 @@ JSON is the lossless interchange format. CSV is a spreadsheet-safe projection
 and neutralizes cells that spreadsheet applications could interpret as
 formulas.
 
-## Design decision
+## Runtime boundaries
 
-BaselineOps deliberately has one runtime and release architecture. The rationale
-and the security lessons retained from the retired prototype are recorded in
+The supported PowerShell application and the unreleased Rust v3 prototype are
+independent release lines. Each retains its own contracts and verification
+evidence; neither implementation may use the other as runtime support or as a
+substitute for missing release proof. The boundary is recorded in
 [ADR 0001](decisions/0001-single-runtime.md).
 
 ## Verification

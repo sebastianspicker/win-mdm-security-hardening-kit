@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "gates": {
+    "authenticated_package_closure": { "closed": false, "evidence": "detached-manifest, installed-inventory, signer-subject, and signer-SPKI verification are implemented; signed Windows package and tamper fixtures are pending" },
+    "protected_install_runtime": { "closed": false, "evidence": "Windows ACL, reparse, hardlink, and signer runtime fixtures are pending" },
+    "process_spy": { "closed": false, "evidence": "Windows process-spy package evidence is pending" },
+    "gui_accessibility": { "closed": false, "evidence": "keyboard, screen reader, high contrast, and DPI evidence is pending" },
+    "local_system": { "closed": false, "evidence": "LocalSystem execution evidence is pending" },
+    "windows_11_pro_24h2": { "closed": false, "evidence": "release VM evidence is pending" },
+    "windows_11_pro_25h2": { "closed": false, "evidence": "release VM evidence is pending" },
+    "windows_11_pro_26h1": { "closed": false, "evidence": "release VM evidence is pending" },
+    "windows_11_enterprise_24h2": { "closed": false, "evidence": "release VM evidence is pending" },
+    "windows_11_enterprise_25h2": { "closed": false, "evidence": "release VM evidence is pending" },
+    "windows_11_enterprise_26h1": { "closed": false, "evidence": "release VM evidence is pending" },
+    "hardware_tpm": { "closed": false, "evidence": "hardware-backed TPM evidence is pending" },
+    "hardware_secure_boot": { "closed": false, "evidence": "hardware-backed Secure Boot evidence is pending" },
+    "hardware_bitlocker": { "closed": false, "evidence": "hardware-backed BitLocker evidence is pending" }
+  }
+}

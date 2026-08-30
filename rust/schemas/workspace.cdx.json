@@ -1,0 +1,806 @@
+{
+  "bomFormat": "CycloneDX",
+  "components": [
+    {
+      "name": "adler2",
+      "purl": "pkg:cargo/adler2@2.0.1",
+      "type": "library",
+      "version": "2.0.1"
+    },
+    {
+      "name": "aho-corasick",
+      "purl": "pkg:cargo/aho-corasick@1.1.5",
+      "type": "library",
+      "version": "1.1.5"
+    },
+    {
+      "name": "android_system_properties",
+      "purl": "pkg:cargo/android_system_properties@0.1.6",
+      "type": "library",
+      "version": "0.1.6"
+    },
+    {
+      "name": "anstream",
+      "purl": "pkg:cargo/anstream@0.6.21",
+      "type": "library",
+      "version": "0.6.21"
+    },
+    {
+      "name": "anstyle",
+      "purl": "pkg:cargo/anstyle@1.0.14",
+      "type": "library",
+      "version": "1.0.14"
+    },
+    {
+      "name": "anstyle-parse",
+      "purl": "pkg:cargo/anstyle-parse@0.2.7",
+      "type": "library",
+      "version": "0.2.7"
+    },
+    {
+      "name": "anstyle-query",
+      "purl": "pkg:cargo/anstyle-query@1.1.5",
+      "type": "library",
+      "version": "1.1.5"
+    },
+    {
+      "name": "anstyle-wincon",
+      "purl": "pkg:cargo/anstyle-wincon@3.0.11",
+      "type": "library",
+      "version": "3.0.11"
+    },
+    {
+      "name": "anyhow",
+      "purl": "pkg:cargo/anyhow@1.0.103",
+      "type": "library",
+      "version": "1.0.103"
+    },
+    {
+      "name": "arbitrary",
+      "purl": "pkg:cargo/arbitrary@1.4.2",
+      "type": "library",
+      "version": "1.4.2"
+    },
+    {
+      "name": "autocfg",
+      "purl": "pkg:cargo/autocfg@1.5.1",
+      "type": "library",
+      "version": "1.5.1"
+    },
+    {
+      "name": "baselineops-capabilities",
+      "purl": "pkg:cargo/baselineops-capabilities@3.0.0-alpha.1",
+      "type": "library",
+      "version": "3.0.0-alpha.1"
+    },
+    {
+      "name": "baselineops-cli",
+      "purl": "pkg:cargo/baselineops-cli@3.0.0-alpha.1",
+      "type": "library",
+      "version": "3.0.0-alpha.1"
+    },
+    {
+      "name": "baselineops-domain",
+      "purl": "pkg:cargo/baselineops-domain@3.0.0-alpha.1",
+      "type": "library",
+      "version": "3.0.0-alpha.1"
+    },
+    {
+      "name": "baselineops-engine",
+      "purl": "pkg:cargo/baselineops-engine@3.0.0-alpha.1",
+      "type": "library",
+      "version": "3.0.0-alpha.1"
+    },
+    {
+      "name": "baselineops-gui",
+      "purl": "pkg:cargo/baselineops-gui@3.0.0-alpha.1",
+      "type": "library",
+      "version": "3.0.0-alpha.1"
+    },
+    {
+      "name": "baselineops-windows",
+      "purl": "pkg:cargo/baselineops-windows@3.0.0-alpha.1",
+      "type": "library",
+      "version": "3.0.0-alpha.1"
+    },
+    {
+      "name": "baselineops-worker",
+      "purl": "pkg:cargo/baselineops-worker@3.0.0-alpha.1",
+      "type": "library",
+      "version": "3.0.0-alpha.1"
+    },
+    {
+      "name": "bitflags",
+      "purl": "pkg:cargo/bitflags@2.13.1",
+      "type": "library",
+      "version": "2.13.1"
+    },
+    {
+      "name": "block-buffer",
+      "purl": "pkg:cargo/block-buffer@0.10.4",
+      "type": "library",
+      "version": "0.10.4"
+    },
+    {
+      "name": "bumpalo",
+      "purl": "pkg:cargo/bumpalo@3.20.3",
+      "type": "library",
+      "version": "3.20.3"
+    },
+    {
+      "name": "cc",
+      "purl": "pkg:cargo/cc@1.4.2",
+      "type": "library",
+      "version": "1.4.2"
+    },
+    {
+      "name": "cfg-if",
+      "purl": "pkg:cargo/cfg-if@1.0.4",
+      "type": "library",
+      "version": "1.0.4"
+    },
+    {
+      "name": "chrono",
+      "purl": "pkg:cargo/chrono@0.4.42",
+      "type": "library",
+      "version": "0.4.42"
+    },
+    {
+      "name": "clap",
+      "purl": "pkg:cargo/clap@4.5.51",
+      "type": "library",
+      "version": "4.5.51"
+    },
+    {
+      "name": "clap_builder",
+      "purl": "pkg:cargo/clap_builder@4.5.51",
+      "type": "library",
+      "version": "4.5.51"
+    },
+    {
+      "name": "clap_derive",
+      "purl": "pkg:cargo/clap_derive@4.5.49",
+      "type": "library",
+      "version": "4.5.49"
+    },
+    {
+      "name": "clap_lex",
+      "purl": "pkg:cargo/clap_lex@0.7.7",
+      "type": "library",
+      "version": "0.7.7"
+    },
+    {
+      "name": "colorchoice",
+      "purl": "pkg:cargo/colorchoice@1.0.5",
+      "type": "library",
+      "version": "1.0.5"
+    },
+    {
+      "name": "core-foundation-sys",
+      "purl": "pkg:cargo/core-foundation-sys@0.8.7",
+      "type": "library",
+      "version": "0.8.7"
+    },
+    {
+      "name": "cpufeatures",
+      "purl": "pkg:cargo/cpufeatures@0.2.17",
+      "type": "library",
+      "version": "0.2.17"
+    },
+    {
+      "name": "crc32fast",
+      "purl": "pkg:cargo/crc32fast@1.5.0",
+      "type": "library",
+      "version": "1.5.0"
+    },
+    {
+      "name": "crypto-common",
+      "purl": "pkg:cargo/crypto-common@0.1.7",
+      "type": "library",
+      "version": "0.1.7"
+    },
+    {
+      "name": "csv",
+      "purl": "pkg:cargo/csv@1.4.0",
+      "type": "library",
+      "version": "1.4.0"
+    },
+    {
+      "name": "csv-core",
+      "purl": "pkg:cargo/csv-core@0.1.13",
+      "type": "library",
+      "version": "0.1.13"
+    },
+    {
+      "name": "derive_arbitrary",
+      "purl": "pkg:cargo/derive_arbitrary@1.4.2",
+      "type": "library",
+      "version": "1.4.2"
+    },
+    {
+      "name": "digest",
+      "purl": "pkg:cargo/digest@0.10.7",
+      "type": "library",
+      "version": "0.10.7"
+    },
+    {
+      "name": "dyn-clone",
+      "purl": "pkg:cargo/dyn-clone@1.0.20",
+      "type": "library",
+      "version": "1.0.20"
+    },
+    {
+      "name": "equivalent",
+      "purl": "pkg:cargo/equivalent@1.0.2",
+      "type": "library",
+      "version": "1.0.2"
+    },
+    {
+      "name": "errno",
+      "purl": "pkg:cargo/errno@0.3.14",
+      "type": "library",
+      "version": "0.3.14"
+    },
+    {
+      "name": "fastrand",
+      "purl": "pkg:cargo/fastrand@2.5.0",
+      "type": "library",
+      "version": "2.5.0"
+    },
+    {
+      "name": "find-msvc-tools",
+      "purl": "pkg:cargo/find-msvc-tools@0.1.10",
+      "type": "library",
+      "version": "0.1.10"
+    },
+    {
+      "name": "flate2",
+      "purl": "pkg:cargo/flate2@1.1.9",
+      "type": "library",
+      "version": "1.1.9"
+    },
+    {
+      "name": "futures-core",
+      "purl": "pkg:cargo/futures-core@0.3.33",
+      "type": "library",
+      "version": "0.3.33"
+    },
+    {
+      "name": "futures-task",
+      "purl": "pkg:cargo/futures-task@0.3.33",
+      "type": "library",
+      "version": "0.3.33"
+    },
+    {
+      "name": "futures-util",
+      "purl": "pkg:cargo/futures-util@0.3.33",
+      "type": "library",
+      "version": "0.3.33"
+    },
+    {
+      "name": "generic-array",
+      "purl": "pkg:cargo/generic-array@0.14.7",
+      "type": "library",
+      "version": "0.14.7"
+    },
+    {
+      "name": "getrandom",
+      "purl": "pkg:cargo/getrandom@0.3.4",
+      "type": "library",
+      "version": "0.3.4"
+    },
+    {
+      "name": "hashbrown",
+      "purl": "pkg:cargo/hashbrown@0.17.1",
+      "type": "library",
+      "version": "0.17.1"
+    },
+    {
+      "name": "heck",
+      "purl": "pkg:cargo/heck@0.5.0",
+      "type": "library",
+      "version": "0.5.0"
+    },
+    {
+      "name": "hex",
+      "purl": "pkg:cargo/hex@0.4.3",
+      "type": "library",
+      "version": "0.4.3"
+    },
+    {
+      "name": "iana-time-zone",
+      "purl": "pkg:cargo/iana-time-zone@0.1.65",
+      "type": "library",
+      "version": "0.1.65"
+    },
+    {
+      "name": "iana-time-zone-haiku",
+      "purl": "pkg:cargo/iana-time-zone-haiku@0.1.2",
+      "type": "library",
+      "version": "0.1.2"
+    },
+    {
+      "name": "indexmap",
+      "purl": "pkg:cargo/indexmap@2.14.0",
+      "type": "library",
+      "version": "2.14.0"
+    },
+    {
+      "name": "is_terminal_polyfill",
+      "purl": "pkg:cargo/is_terminal_polyfill@1.70.2",
+      "type": "library",
+      "version": "1.70.2"
+    },
+    {
+      "name": "itoa",
+      "purl": "pkg:cargo/itoa@1.0.18",
+      "type": "library",
+      "version": "1.0.18"
+    },
+    {
+      "name": "js-sys",
+      "purl": "pkg:cargo/js-sys@0.3.104",
+      "type": "library",
+      "version": "0.3.104"
+    },
+    {
+      "name": "lazy_static",
+      "purl": "pkg:cargo/lazy_static@1.5.0",
+      "type": "library",
+      "version": "1.5.0"
+    },
+    {
+      "name": "libc",
+      "purl": "pkg:cargo/libc@0.2.189",
+      "type": "library",
+      "version": "0.2.189"
+    },
+    {
+      "name": "linux-raw-sys",
+      "purl": "pkg:cargo/linux-raw-sys@0.12.1",
+      "type": "library",
+      "version": "0.12.1"
+    },
+    {
+      "name": "log",
+      "purl": "pkg:cargo/log@0.4.33",
+      "type": "library",
+      "version": "0.4.33"
+    },
+    {
+      "name": "matchers",
+      "purl": "pkg:cargo/matchers@0.2.0",
+      "type": "library",
+      "version": "0.2.0"
+    },
+    {
+      "name": "memchr",
+      "purl": "pkg:cargo/memchr@2.8.3",
+      "type": "library",
+      "version": "2.8.3"
+    },
+    {
+      "name": "miniz_oxide",
+      "purl": "pkg:cargo/miniz_oxide@0.8.9",
+      "type": "library",
+      "version": "0.8.9"
+    },
+    {
+      "name": "nu-ansi-term",
+      "purl": "pkg:cargo/nu-ansi-term@0.50.3",
+      "type": "library",
+      "version": "0.50.3"
+    },
+    {
+      "name": "num-traits",
+      "purl": "pkg:cargo/num-traits@0.2.19",
+      "type": "library",
+      "version": "0.2.19"
+    },
+    {
+      "name": "once_cell",
+      "purl": "pkg:cargo/once_cell@1.21.4",
+      "type": "library",
+      "version": "1.21.4"
+    },
+    {
+      "name": "once_cell_polyfill",
+      "purl": "pkg:cargo/once_cell_polyfill@1.70.2",
+      "type": "library",
+      "version": "1.70.2"
+    },
+    {
+      "name": "pin-project-lite",
+      "purl": "pkg:cargo/pin-project-lite@0.2.17",
+      "type": "library",
+      "version": "0.2.17"
+    },
+    {
+      "name": "proc-macro2",
+      "purl": "pkg:cargo/proc-macro2@1.0.107",
+      "type": "library",
+      "version": "1.0.107"
+    },
+    {
+      "name": "quote",
+      "purl": "pkg:cargo/quote@1.0.47",
+      "type": "library",
+      "version": "1.0.47"
+    },
+    {
+      "name": "r-efi",
+      "purl": "pkg:cargo/r-efi@5.3.0",
+      "type": "library",
+      "version": "5.3.0"
+    },
+    {
+      "name": "ref-cast",
+      "purl": "pkg:cargo/ref-cast@1.0.26",
+      "type": "library",
+      "version": "1.0.26"
+    },
+    {
+      "name": "ref-cast-impl",
+      "purl": "pkg:cargo/ref-cast-impl@1.0.26",
+      "type": "library",
+      "version": "1.0.26"
+    },
+    {
+      "name": "regex-automata",
+      "purl": "pkg:cargo/regex-automata@0.4.18",
+      "type": "library",
+      "version": "0.4.18"
+    },
+    {
+      "name": "regex-syntax",
+      "purl": "pkg:cargo/regex-syntax@0.8.11",
+      "type": "library",
+      "version": "0.8.11"
+    },
+    {
+      "name": "rustix",
+      "purl": "pkg:cargo/rustix@1.1.4",
+      "type": "library",
+      "version": "1.1.4"
+    },
+    {
+      "name": "rustversion",
+      "purl": "pkg:cargo/rustversion@1.0.23",
+      "type": "library",
+      "version": "1.0.23"
+    },
+    {
+      "name": "ryu",
+      "purl": "pkg:cargo/ryu@1.0.23",
+      "type": "library",
+      "version": "1.0.23"
+    },
+    {
+      "name": "schemars",
+      "purl": "pkg:cargo/schemars@1.0.4",
+      "type": "library",
+      "version": "1.0.4"
+    },
+    {
+      "name": "schemars_derive",
+      "purl": "pkg:cargo/schemars_derive@1.0.4",
+      "type": "library",
+      "version": "1.0.4"
+    },
+    {
+      "name": "serde",
+      "purl": "pkg:cargo/serde@1.0.228",
+      "type": "library",
+      "version": "1.0.228"
+    },
+    {
+      "name": "serde_core",
+      "purl": "pkg:cargo/serde_core@1.0.228",
+      "type": "library",
+      "version": "1.0.228"
+    },
+    {
+      "name": "serde_derive",
+      "purl": "pkg:cargo/serde_derive@1.0.228",
+      "type": "library",
+      "version": "1.0.228"
+    },
+    {
+      "name": "serde_derive_internals",
+      "purl": "pkg:cargo/serde_derive_internals@0.29.1",
+      "type": "library",
+      "version": "0.29.1"
+    },
+    {
+      "name": "serde_json",
+      "purl": "pkg:cargo/serde_json@1.0.145",
+      "type": "library",
+      "version": "1.0.145"
+    },
+    {
+      "name": "sha2",
+      "purl": "pkg:cargo/sha2@0.10.9",
+      "type": "library",
+      "version": "0.10.9"
+    },
+    {
+      "name": "sharded-slab",
+      "purl": "pkg:cargo/sharded-slab@0.1.7",
+      "type": "library",
+      "version": "0.1.7"
+    },
+    {
+      "name": "shlex",
+      "purl": "pkg:cargo/shlex@2.0.1",
+      "type": "library",
+      "version": "2.0.1"
+    },
+    {
+      "name": "simd-adler32",
+      "purl": "pkg:cargo/simd-adler32@0.3.10",
+      "type": "library",
+      "version": "0.3.10"
+    },
+    {
+      "name": "slab",
+      "purl": "pkg:cargo/slab@0.4.12",
+      "type": "library",
+      "version": "0.4.12"
+    },
+    {
+      "name": "smallvec",
+      "purl": "pkg:cargo/smallvec@1.15.2",
+      "type": "library",
+      "version": "1.15.2"
+    },
+    {
+      "name": "strsim",
+      "purl": "pkg:cargo/strsim@0.11.1",
+      "type": "library",
+      "version": "0.11.1"
+    },
+    {
+      "name": "syn",
+      "purl": "pkg:cargo/syn@2.0.119",
+      "type": "library",
+      "version": "2.0.119"
+    },
+    {
+      "name": "syn",
+      "purl": "pkg:cargo/syn@3.0.3",
+      "type": "library",
+      "version": "3.0.3"
+    },
+    {
+      "name": "tempfile",
+      "purl": "pkg:cargo/tempfile@3.23.0",
+      "type": "library",
+      "version": "3.23.0"
+    },
+    {
+      "name": "thiserror",
+      "purl": "pkg:cargo/thiserror@2.0.17",
+      "type": "library",
+      "version": "2.0.17"
+    },
+    {
+      "name": "thiserror-impl",
+      "purl": "pkg:cargo/thiserror-impl@2.0.17",
+      "type": "library",
+      "version": "2.0.17"
+    },
+    {
+      "name": "thread_local",
+      "purl": "pkg:cargo/thread_local@1.1.10",
+      "type": "library",
+      "version": "1.1.10"
+    },
+    {
+      "name": "tracing",
+      "purl": "pkg:cargo/tracing@0.1.41",
+      "type": "library",
+      "version": "0.1.41"
+    },
+    {
+      "name": "tracing-attributes",
+      "purl": "pkg:cargo/tracing-attributes@0.1.31",
+      "type": "library",
+      "version": "0.1.31"
+    },
+    {
+      "name": "tracing-core",
+      "purl": "pkg:cargo/tracing-core@0.1.36",
+      "type": "library",
+      "version": "0.1.36"
+    },
+    {
+      "name": "tracing-log",
+      "purl": "pkg:cargo/tracing-log@0.2.0",
+      "type": "library",
+      "version": "0.2.0"
+    },
+    {
+      "name": "tracing-subscriber",
+      "purl": "pkg:cargo/tracing-subscriber@0.3.20",
+      "type": "library",
+      "version": "0.3.20"
+    },
+    {
+      "name": "typenum",
+      "purl": "pkg:cargo/typenum@1.20.1",
+      "type": "library",
+      "version": "1.20.1"
+    },
+    {
+      "name": "unicode-ident",
+      "purl": "pkg:cargo/unicode-ident@1.0.24",
+      "type": "library",
+      "version": "1.0.24"
+    },
+    {
+      "name": "utf8parse",
+      "purl": "pkg:cargo/utf8parse@0.2.2",
+      "type": "library",
+      "version": "0.2.2"
+    },
+    {
+      "name": "uuid",
+      "purl": "pkg:cargo/uuid@1.18.1",
+      "type": "library",
+      "version": "1.18.1"
+    },
+    {
+      "name": "valuable",
+      "purl": "pkg:cargo/valuable@0.1.1",
+      "type": "library",
+      "version": "0.1.1"
+    },
+    {
+      "name": "version_check",
+      "purl": "pkg:cargo/version_check@0.9.5",
+      "type": "library",
+      "version": "0.9.5"
+    },
+    {
+      "name": "wasip2",
+      "purl": "pkg:cargo/wasip2@1.0.4+wasi-0.2.12",
+      "type": "library",
+      "version": "1.0.4+wasi-0.2.12"
+    },
+    {
+      "name": "wasm-bindgen",
+      "purl": "pkg:cargo/wasm-bindgen@0.2.127",
+      "type": "library",
+      "version": "0.2.127"
+    },
+    {
+      "name": "wasm-bindgen-macro",
+      "purl": "pkg:cargo/wasm-bindgen-macro@0.2.127",
+      "type": "library",
+      "version": "0.2.127"
+    },
+    {
+      "name": "wasm-bindgen-macro-support",
+      "purl": "pkg:cargo/wasm-bindgen-macro-support@0.2.127",
+      "type": "library",
+      "version": "0.2.127"
+    },
+    {
+      "name": "wasm-bindgen-shared",
+      "purl": "pkg:cargo/wasm-bindgen-shared@0.2.127",
+      "type": "library",
+      "version": "0.2.127"
+    },
+    {
+      "name": "windows",
+      "purl": "pkg:cargo/windows@0.62.2",
+      "type": "library",
+      "version": "0.62.2"
+    },
+    {
+      "name": "windows-collections",
+      "purl": "pkg:cargo/windows-collections@0.3.2",
+      "type": "library",
+      "version": "0.3.2"
+    },
+    {
+      "name": "windows-core",
+      "purl": "pkg:cargo/windows-core@0.62.2",
+      "type": "library",
+      "version": "0.62.2"
+    },
+    {
+      "name": "windows-future",
+      "purl": "pkg:cargo/windows-future@0.3.2",
+      "type": "library",
+      "version": "0.3.2"
+    },
+    {
+      "name": "windows-implement",
+      "purl": "pkg:cargo/windows-implement@0.60.2",
+      "type": "library",
+      "version": "0.60.2"
+    },
+    {
+      "name": "windows-interface",
+      "purl": "pkg:cargo/windows-interface@0.59.3",
+      "type": "library",
+      "version": "0.59.3"
+    },
+    {
+      "name": "windows-link",
+      "purl": "pkg:cargo/windows-link@0.2.1",
+      "type": "library",
+      "version": "0.2.1"
+    },
+    {
+      "name": "windows-numerics",
+      "purl": "pkg:cargo/windows-numerics@0.3.1",
+      "type": "library",
+      "version": "0.3.1"
+    },
+    {
+      "name": "windows-result",
+      "purl": "pkg:cargo/windows-result@0.4.1",
+      "type": "library",
+      "version": "0.4.1"
+    },
+    {
+      "name": "windows-strings",
+      "purl": "pkg:cargo/windows-strings@0.5.1",
+      "type": "library",
+      "version": "0.5.1"
+    },
+    {
+      "name": "windows-sys",
+      "purl": "pkg:cargo/windows-sys@0.61.2",
+      "type": "library",
+      "version": "0.61.2"
+    },
+    {
+      "name": "windows-threading",
+      "purl": "pkg:cargo/windows-threading@0.2.1",
+      "type": "library",
+      "version": "0.2.1"
+    },
+    {
+      "name": "wit-bindgen",
+      "purl": "pkg:cargo/wit-bindgen@0.57.1",
+      "type": "library",
+      "version": "0.57.1"
+    },
+    {
+      "name": "xtask",
+      "purl": "pkg:cargo/xtask@3.0.0-alpha.1",
+      "type": "library",
+      "version": "3.0.0-alpha.1"
+    },
+    {
+      "name": "zip",
+      "purl": "pkg:cargo/zip@6.0.0",
+      "type": "library",
+      "version": "6.0.0"
+    },
+    {
+      "name": "zlib-rs",
+      "purl": "pkg:cargo/zlib-rs@0.6.7",
+      "type": "library",
+      "version": "0.6.7"
+    },
+    {
+      "name": "zopfli",
+      "purl": "pkg:cargo/zopfli@0.8.3",
+      "type": "library",
+      "version": "0.8.3"
+    }
+  ],
+  "metadata": {
+    "component": {
+      "name": "BaselineOps for Windows",
+      "type": "application",
+      "version": "3.0.0-alpha.1"
+    }
+  },
+  "specVersion": "1.6",
+  "version": 1
+}

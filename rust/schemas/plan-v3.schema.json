@@ -1,0 +1,714 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PlanV3",
+  "description": "A short-lived execution authority derived from a validated profile.",
+  "type": "object",
+  "properties": {
+    "actions": {
+      "description": "Ordered-by-dependency action set. Wire order does not have execution semantics.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/PlannedActionV3"
+      }
+    },
+    "expires_at": {
+      "description": "Time after which the worker must reject the plan.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "host": {
+      "description": "Endpoint for which the plan is valid.",
+      "$ref": "#/$defs/HostIdentityV3"
+    },
+    "input": {
+      "description": "Digest identity for all plan-affecting input.",
+      "$ref": "#/$defs/InputIdentityV3"
+    },
+    "intent": {
+      "description": "Command-bound intent authorized by this plan.",
+      "$ref": "#/$defs/ExecutionIntent"
+    },
+    "issued_at": {
+      "description": "Time the plan was issued.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "description": "Planner metadata with no execution semantics.",
+      "type": "object",
+      "additionalProperties": true
+    },
+    "observed_state": {
+      "description": "State snapshot used to make the plan.",
+      "$ref": "#/$defs/ObservedStateV3"
+    },
+    "package_digest": {
+      "description": "Digest of the verified `BaselineOps` package used to produce the plan.",
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "plan_id": {
+      "description": "Plan identity.",
+      "$ref": "#/$defs/PlanId"
+    },
+    "profile_digest": {
+      "description": "Canonical digest of the validated profile.",
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "profile_id": {
+      "description": "Profile this plan was derived from.",
+      "$ref": "#/$defs/ProfileId"
+    },
+    "run_id": {
+      "description": "Reserved worker run identity that a result must retain.",
+      "$ref": "#/$defs/RunId"
+    },
+    "schema_version": {
+      "description": "Version marker for strict decoding.",
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "source": {
+      "description": "Trusted source identity for the input.",
+      "$ref": "#/$defs/SourceIdentityV3"
+    },
+    "tool": {
+      "description": "Tool that authored the plan.",
+      "$ref": "#/$defs/ToolIdentityV3"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "plan_id",
+    "run_id",
+    "intent",
+    "profile_id",
+    "profile_digest",
+    "host",
+    "tool",
+    "package_digest",
+    "source",
+    "input",
+    "observed_state",
+    "issued_at",
+    "expires_at",
+    "actions"
+  ],
+  "$defs": {
+    "ActionId": {
+      "description": "Stable identity of an action in a profile or plan.",
+      "type": "string",
+      "format": "uuid"
+    },
+    "CapabilityId": {
+      "description": "A bounded, non-empty capability key (for example `defender.health`).",
+      "type": "string"
+    },
+    "ExecutionIntent": {
+      "description": "Intent selected at the unprivileged command boundary.",
+      "oneOf": [
+        {
+          "description": "Inspect current endpoint state.",
+          "type": "string",
+          "const": "audit"
+        },
+        {
+          "description": "Produce a short-lived host-bound plan.",
+          "type": "string",
+          "const": "plan"
+        },
+        {
+          "description": "Execute a previously verified plan.",
+          "type": "string",
+          "const": "apply"
+        }
+      ]
+    },
+    "HostIdentityV3": {
+      "description": "Identity information that binds a plan to the intended endpoint.",
+      "type": "object",
+      "properties": {
+        "architecture": {
+          "description": "CPU architecture label.",
+          "type": "string"
+        },
+        "boot_id": {
+          "description": "Operating-system boot identifier; prevents a plan crossing a reboot boundary.",
+          "type": "string"
+        },
+        "fingerprint": {
+          "description": "Canonical digest binding these identity fields.",
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "host_id": {
+          "description": "Stable worker-defined endpoint identifier, not an authentication secret.",
+          "type": "string"
+        },
+        "hostname": {
+          "description": "Current computer name for operator display.",
+          "type": "string"
+        },
+        "os_family": {
+          "description": "Operating-system family.",
+          "$ref": "#/$defs/OsFamily"
+        },
+        "os_version": {
+          "description": "Operating-system version returned by the worker.",
+          "type": "string"
+        },
+        "session_id": {
+          "description": "Worker session identifier; prevents replay through another local session.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "host_id",
+        "boot_id",
+        "session_id",
+        "hostname",
+        "os_family",
+        "os_version",
+        "architecture",
+        "fingerprint"
+      ]
+    },
+    "InputIdentityV3": {
+      "description": "Digest identity of a profile and capability input bundle.",
+      "type": "object",
+      "properties": {
+        "digest": {
+          "description": "Canonical digest of all input bytes that affect the plan.",
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "size_bytes": {
+          "description": "Number of input bytes used to calculate the digest.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "digest",
+        "size_bytes"
+      ]
+    },
+    "ObservedStateV3": {
+      "description": "Point-in-time state supplied to the planner by registered capabilities.",
+      "type": "object",
+      "properties": {
+        "captured_at": {
+          "description": "Capture time for the whole observation bundle.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "digest": {
+          "description": "Canonical digest of the exact observation bundle.",
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "values": {
+          "description": "Capability-keyed observations.",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/ObservedValueV3"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "captured_at",
+        "digest",
+        "values"
+      ]
+    },
+    "ObservedValueV3": {
+      "description": "A capability-provided value captured before planning.",
+      "type": "object",
+      "properties": {
+        "facts": {
+          "description": "Capability-defined bounded facts.",
+          "type": "object",
+          "additionalProperties": true
+        },
+        "observed_at": {
+          "description": "Time the capability observed this value.",
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "observed_at"
+      ]
+    },
+    "Operation": {
+      "description": "Whether an action is observation-only or can alter the endpoint.",
+      "oneOf": [
+        {
+          "description": "Gather state without applying a desired configuration.",
+          "type": "string",
+          "const": "audit"
+        },
+        {
+          "description": "Produce a host-bound, expiring plan without changing endpoint state.",
+          "type": "string",
+          "const": "plan"
+        },
+        {
+          "description": "Apply an already validated plan.",
+          "type": "string",
+          "const": "apply"
+        }
+      ]
+    },
+    "OsFamily": {
+      "description": "The Windows or cross-platform operating-system family that a capability supports.",
+      "oneOf": [
+        {
+          "description": "Microsoft Windows.",
+          "type": "string",
+          "const": "windows"
+        },
+        {
+          "description": "Linux.",
+          "type": "string",
+          "const": "linux"
+        },
+        {
+          "description": "macOS.",
+          "type": "string",
+          "const": "macos"
+        },
+        {
+          "description": "An explicitly unsupported or unrecognized platform.",
+          "type": "string",
+          "const": "other"
+        }
+      ]
+    },
+    "PlanId": {
+      "description": "Stable identity of a signed planning decision.",
+      "type": "string",
+      "format": "uuid"
+    },
+    "PlannedActionV3": {
+      "description": "One worker-derived action with capability-owned execution authority.",
+      "type": "object",
+      "properties": {
+        "action_id": {
+          "description": "Action identity, unique within a plan.",
+          "$ref": "#/$defs/ActionId"
+        },
+        "capability_id": {
+          "description": "Registered capability selected by the profile step.",
+          "$ref": "#/$defs/CapabilityId"
+        },
+        "continue_on_error": {
+          "description": "Continue after a failed action for audit and plan only. Apply always fails fast.",
+          "type": "boolean",
+          "default": false
+        },
+        "depends_on": {
+          "description": "Derived action identities that must complete successfully first.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ActionId"
+          }
+        },
+        "facts_digest": {
+          "description": "Stable digest of the facts used by the capability to derive this action.",
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "metadata": {
+          "description": "Capability-defined safety metadata.",
+          "type": "object",
+          "additionalProperties": true
+        },
+        "operation": {
+          "description": "Operation supplied by the trusted execution boundary.",
+          "$ref": "#/$defs/Operation"
+        },
+        "parameters": {
+          "description": "Operator-provided capability parameters, validated by the planner.",
+          "type": "object",
+          "additionalProperties": true
+        },
+        "preconditions": {
+          "description": "Conditions that must remain true at apply time.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PreconditionV3"
+          }
+        },
+        "privileges": {
+          "description": "Required worker privileges.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Privilege"
+          }
+        },
+        "reboot": {
+          "description": "Declared reboot consequence.",
+          "$ref": "#/$defs/RebootRequirement"
+        },
+        "reversibility": {
+          "description": "Declared rollback behavior.",
+          "$ref": "#/$defs/Reversibility"
+        },
+        "risk": {
+          "description": "Declared endpoint risk.",
+          "$ref": "#/$defs/RiskLevel"
+        },
+        "source_step_id": {
+          "description": "Profile step from which the trusted worker derived this action.",
+          "$ref": "#/$defs/ActionId"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "action_id",
+        "source_step_id",
+        "capability_id",
+        "operation",
+        "facts_digest",
+        "risk",
+        "reversibility",
+        "reboot"
+      ]
+    },
+    "PreconditionV3": {
+      "description": "A typed prerequisite evaluated by the planner or worker.",
+      "oneOf": [
+        {
+          "description": "The worker must have (or deliberately not have) elevation.",
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "elevation"
+            },
+            "required": {
+              "description": "Expected elevation state.",
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "required"
+          ]
+        },
+        {
+          "description": "The worker token must contain a named privilege.",
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "privilege"
+            },
+            "privilege": {
+              "description": "Required privilege.",
+              "$ref": "#/$defs/Privilege"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "privilege"
+          ]
+        },
+        {
+          "description": "A capability must be registered in the runtime.",
+          "type": "object",
+          "properties": {
+            "capability": {
+              "description": "Capability expected to be available.",
+              "$ref": "#/$defs/CapabilityId"
+            },
+            "kind": {
+              "type": "string",
+              "const": "capability_available"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "capability"
+          ]
+        },
+        {
+          "description": "The plan is bound to the captured host fingerprint.",
+          "type": "object",
+          "properties": {
+            "fingerprint": {
+              "description": "Canonical digest of host identity fields.",
+              "$ref": "#/$defs/Sha256Digest"
+            },
+            "kind": {
+              "type": "string",
+              "const": "host_fingerprint"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "fingerprint"
+          ]
+        },
+        {
+          "description": "The action depends on a specific observed-state capture.",
+          "type": "object",
+          "properties": {
+            "digest": {
+              "description": "Canonical digest of the state capture.",
+              "$ref": "#/$defs/Sha256Digest"
+            },
+            "kind": {
+              "type": "string",
+              "const": "observed_state_digest"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "digest"
+          ]
+        },
+        {
+          "description": "The action requires a particular operating-system family and optional minimum version.",
+          "type": "object",
+          "properties": {
+            "family": {
+              "description": "Required OS family.",
+              "$ref": "#/$defs/OsFamily"
+            },
+            "kind": {
+              "type": "string",
+              "const": "operating_system"
+            },
+            "minimum_version": {
+              "description": "Capability-defined minimum version, compared by the capability.",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "family"
+          ]
+        }
+      ]
+    },
+    "Privilege": {
+      "description": "An execution privilege recognized by the v3 worker boundary.",
+      "oneOf": [
+        {
+          "description": "No elevated token is required.",
+          "type": "string",
+          "const": "user"
+        },
+        {
+          "description": "A local administrator token is required.",
+          "type": "string",
+          "const": "administrator"
+        },
+        {
+          "description": "The local system account is required.",
+          "type": "string",
+          "const": "local_system"
+        },
+        {
+          "description": "Windows backup/restore privileges are required.",
+          "type": "string",
+          "const": "backup_operator"
+        },
+        {
+          "description": "Windows security-log and security-policy privileges are required.",
+          "type": "string",
+          "const": "security_operator"
+        }
+      ]
+    },
+    "ProfileId": {
+      "description": "Stable identity of a profile.",
+      "type": "string",
+      "format": "uuid"
+    },
+    "RebootRequirement": {
+      "description": "Reboot consequence advertised before an action is applied.",
+      "oneOf": [
+        {
+          "description": "No reboot is expected.",
+          "type": "string",
+          "const": "not_required"
+        },
+        {
+          "description": "A reboot can be deferred but may be needed for complete effect.",
+          "type": "string",
+          "const": "recommended"
+        },
+        {
+          "description": "A reboot is required for the requested outcome.",
+          "type": "string",
+          "const": "required"
+        }
+      ]
+    },
+    "Reversibility": {
+      "description": "Ability to return from an action to its previous state.",
+      "oneOf": [
+        {
+          "description": "The action has no persistent side effects.",
+          "type": "string",
+          "const": "not_applicable"
+        },
+        {
+          "description": "A rollback action is complete and deterministic.",
+          "type": "string",
+          "const": "reversible"
+        },
+        {
+          "description": "A rollback is possible only while retained artifacts or system state remain available.",
+          "type": "string",
+          "const": "conditionally_reversible"
+        },
+        {
+          "description": "The action cannot be rolled back by `BaselineOps`.",
+          "type": "string",
+          "const": "irreversible"
+        }
+      ]
+    },
+    "RiskLevel": {
+      "description": "Risk classification supplied by a capability author.",
+      "oneOf": [
+        {
+          "description": "No endpoint mutation and little sensitivity.",
+          "type": "string",
+          "const": "none"
+        },
+        {
+          "description": "Local read-only inspection or low-impact operation.",
+          "type": "string",
+          "const": "low"
+        },
+        {
+          "description": "A guarded change with a local scope.",
+          "type": "string",
+          "const": "moderate"
+        },
+        {
+          "description": "A change that can materially alter endpoint availability or security.",
+          "type": "string",
+          "const": "high"
+        },
+        {
+          "description": "A change that needs explicit, out-of-band operator confirmation.",
+          "type": "string",
+          "const": "critical"
+        }
+      ]
+    },
+    "RunId": {
+      "description": "Stable identity of one worker execution attempt.",
+      "type": "string",
+      "format": "uuid"
+    },
+    "SchemaVersion": {
+      "description": "Wire version for every v3 document.",
+      "oneOf": [
+        {
+          "description": "`BaselineOps` v3.0 contract.",
+          "type": "string",
+          "const": "3.0"
+        }
+      ]
+    },
+    "Sha256Digest": {
+      "description": "Lowercase, 32-byte SHA-256 digest used to bind profiles, plans, and evidence.",
+      "type": "string"
+    },
+    "SourceIdentityV3": {
+      "description": "Source provenance that remains stable enough to validate at apply time.",
+      "type": "object",
+      "properties": {
+        "digest": {
+          "description": "Digest of the source content as received.",
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "kind": {
+          "description": "Origin category.",
+          "$ref": "#/$defs/SourceKind"
+        },
+        "locator": {
+          "description": "Operator-readable origin label or normalized URI.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "locator",
+        "digest"
+      ]
+    },
+    "SourceKind": {
+      "description": "The origin category of profile or configuration input.",
+      "oneOf": [
+        {
+          "description": "A local, operator-supplied file.",
+          "type": "string",
+          "const": "local_file"
+        },
+        {
+          "description": "A profile embedded in the signed distribution.",
+          "type": "string",
+          "const": "bundled"
+        },
+        {
+          "description": "A source retrieved through an explicitly trusted remote workflow.",
+          "type": "string",
+          "const": "remote"
+        },
+        {
+          "description": "Input constructed by a caller through the public API.",
+          "type": "string",
+          "const": "api"
+        }
+      ]
+    },
+    "ToolIdentityV3": {
+      "description": "Build identity of the component that created or validates a plan.",
+      "type": "object",
+      "properties": {
+        "build_digest": {
+          "description": "Optional build or package digest.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Sha256Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "name": {
+          "description": "Tool name, normally `baselineops`.",
+          "type": "string"
+        },
+        "version": {
+          "description": "Tool version.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version"
+      ]
+    }
+  }
+}

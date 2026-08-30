@@ -1,0 +1,29 @@
+[package]
+name = "baselineops-worker"
+description = "Short-lived elevated BaselineOps v3 apply worker"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "baselineops-worker"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+baselineops-domain.workspace = true
+baselineops-engine.workspace = true
+baselineops-windows.workspace = true
+chrono.workspace = true
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+uuid.workspace = true
+
+[lints]
+workspace = true

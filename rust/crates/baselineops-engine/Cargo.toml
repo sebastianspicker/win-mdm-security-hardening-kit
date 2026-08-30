@@ -1,0 +1,28 @@
+[package]
+name = "baselineops-engine"
+description = "Orchestration, planning, journaling, and reporting for BaselineOps v3"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[dependencies]
+baselineops-capabilities.workspace = true
+baselineops-domain.workspace = true
+baselineops-windows.workspace = true
+chrono.workspace = true
+csv.workspace = true
+hex.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+uuid.workspace = true
+tempfile.workspace = true
+zip.workspace = true
+
+[lints]
+workspace = true

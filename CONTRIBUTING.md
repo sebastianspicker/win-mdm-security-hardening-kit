@@ -9,6 +9,7 @@ Changes to endpoint audit and remediation code can affect privileged Windows sta
 - Pester 5.8.0
 - Bash for `scripts/ci-local.sh`
 - Windows PowerShell 5.1 for compatibility checks
+- A recent Rust toolchain for changes under `rust/`
 - A disposable Windows test device for changes that depend on endpoint features or remediation
 
 ## Change workflow
@@ -87,6 +88,19 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -Command `
 ```
 
 Standard-user Pester runs skip tests that require LocalSystem, a protected workspace, another operating system, or unavailable Windows features. Do not convert those expected environmental skips into weaker assertions.
+
+For changes under `rust/`, run the workspace gates from that directory:
+
+```bash
+cargo fmt --all --check
+cargo clippy --workspace --all-targets --all-features -- -D warnings
+cargo test --workspace --all-features
+cargo run -p xtask -- verify
+```
+
+Rust v3 remains a separate, unreleased implementation. Do not infer parity or
+release readiness from compilation or portable tests; update its capability
+ledger and required Windows evidence when those claims change.
 
 The operator release ZIP excludes the test suite. Package checks are documented in the [release guide](docs/alpha-release.md#check-the-extracted-operator-package).
 

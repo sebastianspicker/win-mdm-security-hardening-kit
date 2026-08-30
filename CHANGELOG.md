@@ -25,9 +25,9 @@ Target alpha: `v2.3.0-alpha.1`.
 
 ### Changed
 
-- Consolidated the repository around the supported PowerShell product and
-  retired the unreleased parallel native prototype, its separate build and
-  release pipelines, and its duplicate architecture contracts.
+- Restored the unreleased parallel Rust v3 prototype, its separate build and
+  release pipelines, capability ledger, schemas, and native application
+  workspace while keeping the PowerShell product as the supported release line.
 - Documented one dependency direction for orchestration, capabilities, shared
   application services, and the private Windows/native-process boundary.
 - WinGet remediation now accepts installer and source authority only from

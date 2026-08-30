@@ -216,7 +216,8 @@ function Test-PublicSurfacePath {
     'docs/alpha-release.md',
     'docs/architecture.md',
     'docs/decisions/0001-single-runtime.md',
-    'docs/launcher-gui.md'
+    'docs/launcher-gui.md',
+    'docs/rust-v3.md'
   )
   if ($segments[0] -eq 'docs' -and $path -notin $reviewedPublicDocs) {
     return 'documentation path is not in the reviewed public allowlist'
