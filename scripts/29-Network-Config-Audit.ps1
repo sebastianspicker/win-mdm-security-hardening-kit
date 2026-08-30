@@ -114,7 +114,6 @@ if (-not $isWindowsHost) {
   exit (Get-V2ExitCode -Result $unsupportedResult)
 }
 
-# C10: canonical findings list
 $script:Findings = Get-FindingsList
 
 # Ensure-Cmdlet imported from lib/External.psm1
@@ -369,7 +368,6 @@ $result = [pscustomobject]@{
   Interfaces = $interfaces
 }
 
-# C10: populate findings from interface issues
 $issueInterfaces = @($interfaces | Where-Object {
   (-not $_.DnsServers) -or ((-not $_.IPv4Gateway) -and (-not $_.IPv6Gateway))
 })

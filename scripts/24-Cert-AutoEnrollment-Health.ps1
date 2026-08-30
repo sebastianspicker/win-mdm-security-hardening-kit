@@ -130,7 +130,6 @@ if (-not $isWindowsHost) {
   exit (Get-V2ExitCode -Result $unsupportedResult)
 }
 
-# C10: canonical findings list
 $script:Findings = Get-FindingsList
 
 function Get-ConfigValueInt {
@@ -486,7 +485,6 @@ $result = [pscustomobject]@{
   ExpiringCertificates      = $certOut
 }
 
-# C10: populate structured findings from result
 if ($certReadError) {
   Add-Finding -FindingList $script:Findings -Code 'CERT-ReadError' -Severity 'High' `
     -Message ("Certificate read error: {0}" -f $certReadError)

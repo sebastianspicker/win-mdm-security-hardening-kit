@@ -182,7 +182,6 @@ if (-not $isWindowsHost) {
 
 if (-not $Quiet) { $InformationPreference = 'Continue' }   # Information stream shown by default
 
-# C10: canonical findings list
 $script:Findings = Get-FindingsList
 
 $EventSource      = 'OfficeBrowser-Hardening'
@@ -429,7 +428,6 @@ try {
 
 Write-ConsoleSummary -AllItems @($allSafe) -CatalogInfo $catalogInfo -ProofPath $proofPath -IsAdmin $isAdmin -Remediate ([bool]$Remediate) -Strict ([bool]$Strict) -Notes @($globalNotes)
 
-# C10: populate canonical findings from non-compliant items
 foreach ($nc in @($nonCompliant)) {
   $prod = if ($nc.PSObject.Properties['Product']) { $nc.Product } else { 'Unknown' }
   $area = if ($nc.PSObject.Properties['Area']) { $nc.Area } else { '' }

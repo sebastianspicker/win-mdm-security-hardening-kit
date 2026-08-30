@@ -191,7 +191,6 @@ if (-not $isWindowsHost) {
   exit (Get-V2ExitCode -Result $unsupportedResult)
 }
 
-# C10: canonical findings list
 $script:Findings = Get-FindingsList
 
 # Anonymized defaults
@@ -584,7 +583,6 @@ catch {
   Write-UiLine -Text $errMsg -Color 'ERR'
 }
 
-# C10: populate canonical findings from drifts and errors
 foreach ($d in @($drifts)) {
   # Map drift strings to finding codes based on content keywords
   $code = 'HW-Drift'

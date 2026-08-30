@@ -177,7 +177,6 @@ if (-not $isWindowsHost) {
   exit (Get-V2ExitCode -Result $unsupportedResult)
 }
 
-# C10: canonical findings list
 $script:Findings = Get-FindingsList
 
 # ----------------------------
@@ -393,7 +392,6 @@ foreach ($kb in @($feedKBs)) {
   }
 }
 
-# C10: populate structured findings from missing KBs
 foreach ($z in @($zeroDays)) {
   Add-Finding -FindingList $script:Findings -Code 'PATCH-MissingZeroDay' -Severity 'High' `
     -Message ("Missing zero-day KB: {0} [{1}]" -f $z.KB, $z.Title) `

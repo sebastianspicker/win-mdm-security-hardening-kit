@@ -235,9 +235,7 @@ function Get-MinimumBaselineDesiredConfig {
   # - Do not force protected folders here: Windows system folders are protected by default; forcing additional folders
   #   without context can cause app compatibility issues.
   #
-  # Implementation:
-  # - Desired = current lists (no removals), plus a minimal/empty baseline for the categories above.
-  #   This prevents unintended removals, while ensuring a defined schema.
+  # Preserve current lists so the default does not remove operator-managed state.
   $cur = Get-NullSafeDesiredFromCurrent -Preference $Preference
 
   [pscustomobject]@{
@@ -251,7 +249,7 @@ function Get-MinimumBaselineDesiredConfig {
     }
     CFA = [pscustomobject]@{
       AllowedApplications = @()  # baseline: none
-      ProtectedFolders    = @()  # baseline: none (system defaults already exist) 
+      ProtectedFolders    = @()  # baseline: none (system defaults already exist)
     }
   }
 }

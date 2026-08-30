@@ -551,7 +551,7 @@ function Invoke-FindingsCheck {
     [Parameter(Mandatory)]
     $KbStatus
   )
-  # C10: populate $script:Findings via Add-Finding; also return legacy string array for backward compat
+  # Preserve the compatibility summary while also producing shared findings.
   $legacyFindings = @()
   if ($Proofs -and (@($Proofs | Where-Object { -not $_.Present }).Count -gt 0)) {
     $msg = "At least one expected proof file is missing."

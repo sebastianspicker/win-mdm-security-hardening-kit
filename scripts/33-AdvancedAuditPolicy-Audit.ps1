@@ -107,7 +107,6 @@ if (-not $isWindowsHost) {
   exit (Get-V2ExitCode -Result $unsupportedResult)
 }
 
-# C10: use canonical Get-FindingsList from Results.psm1
 $script:Findings = Get-FindingsList
 
 # -------------------- Helpers --------------------

@@ -145,7 +145,6 @@ if (-not $isWindowsHost) {
   exit (Get-V2ExitCode -Result $unsupportedResult)
 }
 
-# C10: canonical findings list
 $script:Findings = Get-FindingsList
 $DefaultEventSource    = 'TasksHygiene'
 $DefaultQuarantineDir  = Join-Path ([System.IO.Path]::GetTempPath()) 'TasksHygiene-Quarantine'
@@ -766,7 +765,6 @@ catch {
   if ($PassThru) { $v2Result }
   exit 1
 }
-# C10: populate canonical findings from drifts
 foreach ($d in @($drifts)) {
   $code = 'TASK-Drift'
   $sev = 'Medium'

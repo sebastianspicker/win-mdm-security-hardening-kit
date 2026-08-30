@@ -133,7 +133,6 @@ if (-not $isWindowsHost) {
 $script:EventSource = 'UpdateHealth-SSU-Proof'
 $script:EventLog    = 'Application'
 $script:FallbackLog = $null
-# C10: canonical findings list
 $script:Findings = Get-FindingsList
 # -------------------------------- Console helpers ----------------------------------
 # ------------------------------------ Helpers --------------------------------------
@@ -185,7 +184,7 @@ function Get-LegacyFinding {
   }
 }
 function Add-FindingToCanonical {
-  # C10: adds a legacy finding object to the canonical $script:Findings list
+  # Map the compatibility payload to the shared finding contract.
   param([pscustomobject]$LegacyFinding)
   $c10Sev = switch ($LegacyFinding.Severity) { 'Error' { 'High' }; 'Warning' { 'Medium' }; default { 'Info' } }
   Add-Finding -FindingList $script:Findings -Code $LegacyFinding.Area -Severity $c10Sev -Message $LegacyFinding.Message -Extra @{ Time = $LegacyFinding.Time }
@@ -641,7 +640,6 @@ try {
 $effectiveFindings = New-Object System.Collections.ArrayList
 Add-ArrayListMany $effectiveFindings $findings
 if ($Strict) { Add-ArrayListMany $effectiveFindings $notes }
-# C10: populate canonical findings from effectiveFindings
 foreach ($ef in @($effectiveFindings)) {
   Add-FindingToCanonical -LegacyFinding $ef
 }

@@ -145,7 +145,6 @@ if (-not $isWindowsHost) {
   exit (Get-V2ExitCode -Result $unsupportedResult)
 }
 
-# C10: canonical findings list
 $script:Findings = Get-FindingsList
 if ([string]::IsNullOrWhiteSpace($ProofPath)) {
   $ProofPath = Join-Path ([System.IO.Path]::GetTempPath()) 'SecureRemoteAccessGuardrails-proof.json'
@@ -727,7 +726,6 @@ catch {
     HasDrift     = $false
   }
 }
-# C10: populate canonical findings from drifts
 foreach ($d in @($drifts)) {
   $code = 'RDP-Drift'
   $sev = 'Medium'

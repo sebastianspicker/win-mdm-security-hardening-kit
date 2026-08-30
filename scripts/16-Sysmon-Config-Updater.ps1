@@ -182,7 +182,6 @@ if (-not $isWindowsHost) {
 
 $StatePath = Get-SysmonStatePath -RequestedPath $StatePath -FileName 'config-updater-state.json'
 
-# C10: canonical findings list
 $script:Findings = Get-FindingsList
 # -----------------------------
 # Main
@@ -546,7 +545,6 @@ finally {
     Write-PrettySummary -Summary $pretty -ChannelSizeMiB $ChannelSizeMiB -Sanitize:$false -NoColor:$NoColor
   }
 }
-# C10: populate canonical findings from warnings
 foreach ($w in @($warns)) {
   $code = 'SYSMON-Warning'
   $sev = 'Medium'

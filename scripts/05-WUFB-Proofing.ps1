@@ -162,7 +162,6 @@ if (-not $isWindowsHost) {
   exit (Get-V2ExitCode -Result $unsupportedResult)
 }
 
-# C10: canonical findings list
 $script:Findings = Get-FindingsList
 
 # -----------------------------
@@ -722,7 +721,6 @@ try {
 
 }
 
-# C10: populate canonical findings from drifts
 foreach ($d in @($drifts)) {
   $code = 'WUFB-Drift'
   $sev = 'Medium'
