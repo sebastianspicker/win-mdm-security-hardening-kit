@@ -25,6 +25,13 @@ Target alpha: `v2.3.0-alpha.1`.
 
 ### Changed
 
+- Consolidated the repository around the supported PowerShell product and
+  retired the unreleased parallel native prototype, its separate build and
+  release pipelines, and its duplicate architecture contracts.
+- Documented one dependency direction for orchestration, capabilities, shared
+  application services, and the private Windows/native-process boundary.
+- WinGet remediation now accepts installer and source authority only from
+  explicit operator parameters; audit mode never refreshes or adds sources.
 - The source distribution, release artifacts, and local runtime identifiers
   use the BaselineOps for Windows name.
 - PowerShell verification now parses tool modules (`tools/*.psm1`) as well as
