@@ -476,6 +476,11 @@ function Get-SysmonRemediationExecutionClosure {
   foreach ($moduleName in @('Output.psm1','Common.psm1','EventLog.psm1','Evidence.psm1','External.psm1','Results.psm1','Serialization.psm1','Validation.psm1')) {
     $closurePaths += Join-Path $repositoryRoot (Join-Path 'lib' $moduleName)
   }
+  # External.psm1 dot-sources these platform implementations. Lock them with
+  # the facade so a privileged launch cannot observe an unlocked code path.
+  foreach ($platformFile in @('Executable.ps1','NativeProcess.ps1','NativeTools.ps1','WindowsOperations.ps1')) {
+    $closurePaths += Join-Path $repositoryRoot (Join-Path 'lib\platform' $platformFile)
+  }
   return @($closurePaths)
 }
 

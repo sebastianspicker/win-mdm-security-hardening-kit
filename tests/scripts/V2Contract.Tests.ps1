@@ -163,6 +163,28 @@ Describe 'v2 parameter contract' {
     $content | Should -Match '\$final\.Status\s+-in\s+@\(''FAIL'',\s*''ERROR''\)'
   }
 
+  It '17-Sysmon-Rule-Drift-Sensor locks every platform implementation loaded by External.psm1' {
+    $repositoryRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../..')).ProviderPath
+    $updaterPath = Join-Path $repositoryRoot 'scripts/16-Sysmon-Config-Updater.ps1'
+    . (Join-Path $repositoryRoot 'scripts/internal/17-Sysmon-Rule-Drift-Sensor.helpers.ps1')
+
+    $actualPlatformClosure = @(
+      Get-SysmonRemediationExecutionClosure -ScriptPath $updaterPath |
+        Where-Object { $_ -like (Join-Path $repositoryRoot 'lib/platform/*') }
+    )
+    $expectedPlatformClosure = @(
+      'Executable.ps1',
+      'NativeProcess.ps1',
+      'NativeTools.ps1',
+      'WindowsOperations.ps1'
+    ) | ForEach-Object { Join-Path $repositoryRoot (Join-Path 'lib/platform' $_) }
+
+    $actualPlatformClosure | Should -HaveCount $expectedPlatformClosure.Count
+    for ($index = 0; $index -lt $expectedPlatformClosure.Count; $index++) {
+      $actualPlatformClosure[$index] | Should -BeExactly $expectedPlatformClosure[$index]
+    }
+  }
+
   It 'advertised Strict has terminal WARN-to-FAIL handling in audited scripts' {
     $strictPaths = @(
       '00-Copy-Local.ps1', '00-Report-Aggregate.ps1', '00-Run-Local.ps1', '00-Validate-Profile.ps1',

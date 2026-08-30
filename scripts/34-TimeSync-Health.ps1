@@ -114,13 +114,6 @@ if (-not $isWindowsHost) {
 # Helpers
 # ----------------------------
 
-function Ensure-Exe {
-  param([Parameter(Mandatory)][string]$Name)
-  if (-not (Get-Command -Name $Name -ErrorAction SilentlyContinue)) {
-    throw "Executable not found: $Name"
-  }
-}
-
 function Invoke-NativeCommandSoft {
   [CmdletBinding()]
   param(
