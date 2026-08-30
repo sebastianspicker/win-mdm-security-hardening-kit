@@ -2,6 +2,10 @@
 <#
 .SYNOPSIS
 Regression coverage for the public-surface verifier.
+
+.DESCRIPTION
+Verifies that sensitive local artifact names remain ignored and are rejected
+by the tracked public-surface policy.
 #>
 
 BeforeAll {
