@@ -219,6 +219,33 @@ Describe 'Save-Csv' {
     }
   }
 
+  It 'neutralizes spreadsheet formulas after leading whitespace or control characters' {
+    $tmp = Join-Path ([System.IO.Path]::GetTempPath()) ("ser-csv-formula-{0}.csv" -f [guid]::NewGuid().ToString('N'))
+    try {
+      $controlPrefix = ([char]1) + '=HYPERLINK("https://example.test")'
+      Save-Csv -InputObject @(
+        [pscustomobject]@{ Value = '=1+1' },
+        [pscustomobject]@{ Value = ' +SUM(A1:A2)' },
+        [pscustomobject]@{ Value = $controlPrefix }
+      ) -Path $tmp
+
+      $values = @(Import-Csv -LiteralPath $tmp | ForEach-Object Value)
+      $values | Should -Be @("'=1+1", "' +SUM(A1:A2)", ("'" + $controlPrefix))
+    } finally {
+      if (Test-Path -LiteralPath $tmp) { Remove-Item -LiteralPath $tmp -Force -ErrorAction SilentlyContinue }
+    }
+  }
+
+  It 'keeps JSON values lossless' {
+    $tmp = Join-Path ([System.IO.Path]::GetTempPath()) ("ser-json-lossless-{0}.json" -f [guid]::NewGuid().ToString('N'))
+    try {
+      Save-Json -InputObject ([pscustomobject]@{ Value = '=1+1' }) -Path $tmp
+      (Get-Content -LiteralPath $tmp -Raw | ConvertFrom-Json).Value | Should -Be '=1+1'
+    } finally {
+      if (Test-Path -LiteralPath $tmp) { Remove-Item -LiteralPath $tmp -Force -ErrorAction SilentlyContinue }
+    }
+  }
+
   It 'Auto-creates parent directory for CSV' {
     $tmpDir = Join-Path ([System.IO.Path]::GetTempPath()) ("ser-csvdir-{0}" -f [guid]::NewGuid().ToString('N'))
     $tmp = Join-Path $tmpDir 'output.csv'

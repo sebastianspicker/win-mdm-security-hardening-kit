@@ -386,6 +386,66 @@ Describe 'Test-PathContainsReparsePoint' {
   }
 }
 
+Describe 'Test-SafeOutputFilePath' {
+  It 'accepts a local output path without creating missing parents' {
+    $path = Join-Path $TestDrive 'output/nested/report.csv'
+
+    Test-SafeOutputFilePath -Path $path | Should -BeTrue
+    Test-Path -LiteralPath ([System.IO.Path]::GetDirectoryName($path)) | Should -BeFalse
+  }
+
+  It 'creates missing parents through the explicit initializer' {
+    $path = Join-Path $TestDrive 'output/nested/report.csv'
+
+    Initialize-SafeOutputFilePath -Path $path | Should -BeTrue
+    Test-Path -LiteralPath ([System.IO.Path]::GetDirectoryName($path)) | Should -BeTrue
+  }
+
+  It 'rejects traversal and UNC output paths' {
+    Test-SafeOutputFilePath -Path '../escape.csv' | Should -BeFalse
+    Test-SafeOutputFilePath -Path '\\server\share\report.csv' | Should -BeFalse
+  }
+
+  It 'rejects a reparse-point ancestor' -Skip:([System.Environment]::OSVersion.Platform -ne [System.PlatformID]::Win32NT) {
+    $root = Join-Path $TestDrive 'output-link-root'
+    $outside = Join-Path $TestDrive 'output-link-outside'
+    New-Item -Path $root -ItemType Directory -Force | Out-Null
+    New-Item -Path $outside -ItemType Directory -Force | Out-Null
+    $link = Join-Path $root 'link'
+    try {
+      New-Item -Path $link -ItemType SymbolicLink -Target $outside -ErrorAction Stop | Out-Null
+    } catch {
+      Set-ItResult -Skipped -Because 'Symbolic links are not available in this environment.'
+      return
+    }
+
+    Test-SafeOutputFilePath -Path (Join-Path $link 'report.csv') | Should -BeFalse
+  }
+}
+
+Describe 'Test-WingetPrivateSourceDefinition' {
+  It 'allows explicitly supported source types on public HTTPS endpoints' -ForEach @('Microsoft.Rest', 'Microsoft.PreIndexed.Package') {
+    Test-WingetPrivateSourceDefinition -Url 'https://packages.example.com/cache' -Type $_ | Should -BeTrue
+  }
+
+  It 'rejects unsupported types and unsafe endpoint forms' -ForEach @(
+    @{ Url = 'https://packages.example.com/cache'; Type = 'Microsoft.SQLite' }
+    @{ Url = 'http://packages.example.com/cache'; Type = 'Microsoft.Rest' }
+    @{ Url = 'https://user:password@packages.example.com/cache'; Type = 'Microsoft.Rest' }
+    @{ Url = 'https://packages.example.com/cache?access_token=secret'; Type = 'Microsoft.Rest' }
+    @{ Url = 'https://packages.example.com/cache#access_token=secret'; Type = 'Microsoft.Rest' }
+    @{ Url = 'https://localhost/cache'; Type = 'Microsoft.Rest' }
+    @{ Url = 'https://repo.local/cache'; Type = 'Microsoft.Rest' }
+    @{ Url = 'https://127.0.0.1/cache'; Type = 'Microsoft.Rest' }
+    @{ Url = 'https://169.254.1.1/cache'; Type = 'Microsoft.Rest' }
+    @{ Url = 'https://[fe80::1]/cache'; Type = 'Microsoft.Rest' }
+    @{ Url = 'https://[fc00::1]/cache'; Type = 'Microsoft.Rest' }
+    @{ Url = 'https://[::ffff:127.0.0.1]/cache'; Type = 'Microsoft.Rest' }
+  ) {
+    Test-WingetPrivateSourceDefinition -Url $Url -Type $Type | Should -BeFalse
+  }
+}
+
 Describe 'Get-BoundedUtf8FileContent' {
   It 'reads ordinary UTF-8 content and exposes a stable content hash' {
     $path = Join-Path $TestDrive 'bounded.json'

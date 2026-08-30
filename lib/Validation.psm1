@@ -343,6 +343,177 @@ function Test-PathContainsReparsePoint {
 
 <#
 .SYNOPSIS
+  Tests whether a local output-file path is safe to create or overwrite.
+.DESCRIPTION
+  Rejects traversal, UNC/device paths, directories, and existing reparse
+  points. For a new file it validates the nearest existing parent. This
+  predicate never creates directories or otherwise changes filesystem state.
+#>
+function Test-SafeOutputFilePath {
+  [CmdletBinding()]
+  [OutputType([bool])]
+  param(
+    [Parameter(Mandatory)][string]$Path
+  )
+
+  if ([string]::IsNullOrWhiteSpace($Path) -or (Test-PathTraversal -Path $Path)) {
+    return $false
+  }
+  # Network shares and Win32 device namespaces can redirect a privileged
+  # writer outside the local filesystem policy.
+  if ($Path -match '^[\\/]{2}') {
+    return $false
+  }
+
+  try {
+    $providerPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path)
+    if ($providerPath -match '^[\\/]{2}') {
+      return $false
+    }
+    $fullPath = [System.IO.Path]::GetFullPath($providerPath)
+    $parentPath = [System.IO.Path]::GetDirectoryName($fullPath)
+    if ([string]::IsNullOrWhiteSpace($parentPath)) {
+      return $false
+    }
+
+    if (Test-Path -LiteralPath $fullPath) {
+      $item = Get-Item -LiteralPath $fullPath -Force -ErrorAction Stop
+      if ($item.PSIsContainer) {
+        return $false
+      }
+      if ([System.Environment]::OSVersion.Platform -ne [System.PlatformID]::Win32NT) {
+        return $true
+      }
+      $root = [System.IO.Path]::GetPathRoot($fullPath)
+      return -not (Test-PathContainsReparsePoint -Path $fullPath -Root $root)
+    }
+
+    if ([System.Environment]::OSVersion.Platform -ne [System.PlatformID]::Win32NT) {
+      return $true
+    }
+
+    $existingParent = $parentPath
+    while (-not (Test-Path -LiteralPath $existingParent -PathType Container)) {
+      $nextParent = [System.IO.Path]::GetDirectoryName($existingParent)
+      if ([string]::IsNullOrWhiteSpace($nextParent) -or $nextParent -eq $existingParent) {
+        return $false
+      }
+      $existingParent = $nextParent
+    }
+    $root = [System.IO.Path]::GetPathRoot($existingParent)
+    if (Test-PathContainsReparsePoint -Path $existingParent -Root $root) {
+      return $false
+    }
+
+  } catch {
+    return $false
+  }
+
+  return $true
+}
+
+<#
+.SYNOPSIS
+  Validates an output path and creates its parent directory when necessary.
+.DESCRIPTION
+  Performs pure validation before creation and repeats validation afterward so
+  callers do not write through traversal, network, device, or reparse paths.
+#>
+function Initialize-SafeOutputFilePath {
+  [CmdletBinding()]
+  [OutputType([bool])]
+  param([Parameter(Mandatory)][string]$Path)
+
+  if (-not (Test-SafeOutputFilePath -Path $Path)) {
+    return $false
+  }
+
+  try {
+    $providerPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path)
+    $fullPath = [System.IO.Path]::GetFullPath($providerPath)
+    $parentPath = [System.IO.Path]::GetDirectoryName($fullPath)
+    if (-not (Test-Path -LiteralPath $parentPath -PathType Container)) {
+      [void][System.IO.Directory]::CreateDirectory($parentPath)
+    }
+  } catch {
+    return $false
+  }
+
+  return (Test-SafeOutputFilePath -Path $Path)
+}
+
+<#
+.SYNOPSIS
+  Tests a WinGet private-source type and endpoint against the local policy.
+.DESCRIPTION
+  The endpoint must be absolute HTTPS with a path only: credentials, query,
+  and fragment components are not permitted. Configure private-source
+  authentication out of band through the organization-managed WinGet or OS
+  credential mechanism. The endpoint must not name a local, loopback,
+  wildcard, or link-local address. DNS is deliberately not resolved here so
+  validation does not introduce a network side effect.
+#>
+function Test-WingetPrivateSourceDefinition {
+  [CmdletBinding()]
+  [OutputType([bool])]
+  param(
+    [AllowNull()][string]$Url,
+    [AllowNull()][string]$Type
+  )
+
+  $supportedTypes = @('Microsoft.Rest', 'Microsoft.PreIndexed.Package')
+  if ([string]::IsNullOrWhiteSpace($Url) -or $Type -notin $supportedTypes) {
+    return $false
+  }
+
+  $uri = $null
+  if (-not [System.Uri]::TryCreate($Url, [System.UriKind]::Absolute, [ref]$uri) -or
+      -not $uri.IsAbsoluteUri -or $uri.Scheme -ne 'https' -or
+      -not [string]::IsNullOrWhiteSpace($uri.UserInfo) -or
+      -not [string]::IsNullOrWhiteSpace($uri.Query) -or
+      -not [string]::IsNullOrWhiteSpace($uri.Fragment)) {
+    return $false
+  }
+  $sourceHost = $uri.Host.TrimEnd('.')
+  if ([string]::IsNullOrWhiteSpace($sourceHost) -or $sourceHost -eq 'localhost' -or $sourceHost.EndsWith('.local', [System.StringComparison]::OrdinalIgnoreCase)) {
+    return $false
+  }
+  $address = $null
+  if ([System.Net.IPAddress]::TryParse($sourceHost, [ref]$address)) {
+    if ([System.Net.IPAddress]::IsLoopback($address) -or
+        $address.Equals([System.Net.IPAddress]::Any) -or
+        $address.Equals([System.Net.IPAddress]::IPv6Any) -or
+        $address.IsIPv6LinkLocal) {
+      return $false
+    }
+    $bytes = $address.GetAddressBytes()
+    if ($bytes.Length -eq 16 -and (($bytes[0] -band 0xFE) -eq 0xFC)) {
+      return $false
+    }
+    $isIpv4Mapped = $bytes.Length -eq 16 -and $bytes[10] -eq 0xFF -and $bytes[11] -eq 0xFF
+    if ($isIpv4Mapped) {
+      foreach ($index in 0..9) {
+        if ($bytes[$index] -ne 0) {
+          $isIpv4Mapped = $false
+          break
+        }
+      }
+    }
+    if ($isIpv4Mapped) {
+      $bytes = $bytes[12..15]
+    }
+    if ($bytes.Length -eq 4 -and (($bytes[0] -eq 10) -or ($bytes[0] -eq 127) -or
+          ($bytes[0] -eq 169 -and $bytes[1] -eq 254) -or
+          ($bytes[0] -eq 192 -and $bytes[1] -eq 168) -or
+          ($bytes[0] -eq 172 -and $bytes[1] -ge 16 -and $bytes[1] -le 31))) {
+      return $false
+    }
+  }
+  return $true
+}
+
+<#
+.SYNOPSIS
   Reads a UTF-8 text file through a stable, size-bounded file handle.
 .DESCRIPTION
   Opens the file with read-only sharing so it cannot be replaced or modified
@@ -410,6 +581,9 @@ Export-ModuleMember -Function `
   Test-SafeUrl, `
   Test-PathUnderRoot, `
   Test-PathContainsReparsePoint, `
+  Test-SafeOutputFilePath, `
+  Initialize-SafeOutputFilePath, `
+  Test-WingetPrivateSourceDefinition, `
   Test-TrustedWindowsPathAcl, `
   Assert-TrustedWindowsPathAcl, `
   Get-BoundedUtf8FileContent, `

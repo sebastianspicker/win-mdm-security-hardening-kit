@@ -15,9 +15,9 @@
      - x64 is required (missing => Error).
      - x86 is optional (missing => Warning).
      In Remediate mode, if installer paths are available, the script attempts installation.
-  4) Validate presence of a private WinGet source (name + URL) when RequirePrivateSource is enabled.
-     In Remediate mode, the script can add the missing source (and update it if already present).
-  5) Run "winget source update" to refresh sources.
+  4) Validate presence of a private WinGet source when RequirePrivateSource is enabled.
+     In Remediate mode, the script can add the missing source from a validated name, URL, and type.
+  5) In Remediate mode, run "winget source update" to refresh sources.
      A failure is Warning by default, or Error when -FailOnSourceUpdateError is set.
   6) Write a short audit message to the Windows Application Event Log (best-effort).
   7) Print a final console summary and return structured results to the pipeline.
@@ -32,15 +32,24 @@
   Path to an optional JSON configuration file.
   If the file does not exist or cannot be parsed, the script continues with defaults and parameter
   overrides and marks the Config check as Warning.
-  The JSON (if present) can provide:
-  - VC++ installer paths and arguments.
-  - Private source name, URL, and source type.
+  The JSON (if present) can provide an audit-only private source name.
+  Remediation authority for installers and source endpoints is accepted only
+  from explicit operator parameters.
 .PARAMETER PrivateSourceName
   Sets/overrides the private WinGet source name.
   Use this when no JSON is available or when you want to override the JSON value.
 .PARAMETER PrivateSourceUrl
   Sets/overrides the private WinGet source URL.
-  Use this when no JSON is available or when you want to override the JSON value.
+  Required as an explicit operator parameter when remediation may add a source.
+  It must be an HTTPS endpoint path without credentials, query, or fragment
+  components. Configure source authentication out of band through the
+  organization-managed WinGet or OS credential mechanism.
+.PARAMETER InstallerX64Path
+  Explicit operator-selected path to the Microsoft x64 VC++ Redistributable installer.
+  Configuration files cannot grant installer execution authority.
+.PARAMETER InstallerX86Path
+  Explicit operator-selected path to the Microsoft x86 VC++ Redistributable installer.
+  Configuration files cannot grant installer execution authority.
 .PARAMETER FailOnSourceUpdateError
   Controls how "winget source update" failures affect the overall result.
   - Not set: source update failure is recorded as Warning.
@@ -115,6 +124,8 @@ param(
   [string]$ConfigPath,
   [string]$PrivateSourceName = $null,
   [string]$PrivateSourceUrl  = $null,
+  [string]$InstallerX64Path,
+  [string]$InstallerX86Path,
   [switch]$FailOnSourceUpdateError,
   [switch]$DiagnoseWingetErrors,
   [switch]$NoConsole,
@@ -221,6 +232,32 @@ function Get-OverallOk {
   }
   return $true
 }
+function Protect-WingetProcessMetadata {
+  [CmdletBinding()]
+  [OutputType([string])]
+  param([AllowNull()][AllowEmptyString()]$Value)
+
+  if ($null -eq $Value) { return '' }
+  # Process output and arguments can echo a legacy or rejected source URL.
+  # Do not let URL userinfo enter records, pipeline output, or event logging.
+  return [regex]::Replace(
+    [string]$Value,
+    '(?i)https?://[^\s]*(?:@|\?|#)[^\s]*',
+    '[credential-bearing URL redacted]'
+  )
+}
+function Get-PrivateSourceResultMetadata {
+  [CmdletBinding()]
+  [OutputType([hashtable])]
+  param(
+    [AllowNull()][string]$Name,
+    [AllowNull()][string]$Type
+  )
+
+  # Source endpoints are execution inputs, not result metadata. Authentication
+  # must be provisioned separately and must never be carried in the URL.
+  return @{ Name = $Name; Type = $Type; Endpoint = '[not recorded]' }
+}
 # ---------------- Config Helpers ----------------
 function Get-Config {
   [CmdletBinding()]
@@ -268,16 +305,18 @@ function Invoke-Winget {
     [ValidateRange(1, 86400)][int]$TimeoutSec = 120
   )
   $native = Invoke-NativeCommand -Command $WingetPath -Arguments $WingetArgs -CaptureOutput -Quiet -TimeoutSeconds $TimeoutSec -MaxOutputBytes 1048576
+  $metadataArgs = @($WingetArgs | ForEach-Object { Protect-WingetProcessMetadata -Value $_ })
   if ($null -eq $native) {
-    return @{ ExitCode = 1; StdOut = ''; StdErr = 'winget process could not be started.'; Args = $WingetArgs; TimedOut = $false; OutputTruncated = $false; StderrTruncated = $false; Success = $false }
+    return @{ ExitCode = 1; StdOut = ''; StdErr = 'winget process could not be started.'; Args = $metadataArgs; TimedOut = $false; OutputTruncated = $false; StderrTruncated = $false; Success = $false }
   }
   $timedOut = [bool]$native.TimedOut
   $truncated = [bool]$native.OutputTruncated -or [bool]$native.StderrTruncated
   $exitCode = if ($timedOut) { 408 } elseif ($truncated) { 413 } else { [int]$native.ExitCode }
-  $stderr = [string]$native.Stderr
+  $stdout = Protect-WingetProcessMetadata -Value $native.Stdout
+  $stderr = Protect-WingetProcessMetadata -Value $native.Stderr
   if ($timedOut) { $stderr = (($stderr, "Timeout after $TimeoutSec s" | Where-Object { $_ }) -join "`n") }
   if ($truncated) { $stderr = (($stderr, 'Output truncated at 1048576 bytes; result is unusable.' | Where-Object { $_ }) -join "`n") }
-  return @{ ExitCode = $exitCode; StdOut = [string]$native.Stdout; StdErr = $stderr; Args = $WingetArgs; TimedOut = $timedOut; OutputTruncated = [bool]$native.OutputTruncated; StderrTruncated = [bool]$native.StderrTruncated; Success = ([bool]$native.Success -and -not $timedOut -and -not $truncated) }
+  return @{ ExitCode = $exitCode; StdOut = $stdout; StdErr = $stderr; Args = $metadataArgs; TimedOut = $timedOut; OutputTruncated = [bool]$native.OutputTruncated; StderrTruncated = [bool]$native.StderrTruncated; Success = ([bool]$native.Success -and -not $timedOut -and -not $truncated) }
 }
 function ConvertTo-ConservativeNativeArguments {
   [CmdletBinding()]
@@ -461,6 +500,29 @@ function Install-VcRedist {
   }
 }
 # ---------------- Source Helpers ----------------
+function Test-WingetSourceOutputContainsName {
+  [CmdletBinding()]
+  [OutputType([bool])]
+  param(
+    [AllowNull()][AllowEmptyString()][string]$Text,
+    [Parameter(Mandatory)][string]$Name
+  )
+
+  foreach ($line in @($Text -split '\r?\n')) {
+    $propertyMatch = [regex]::Match($line, '^\s*Name\s*:\s*(?<Name>.+?)\s*$', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    if ($propertyMatch.Success -and $propertyMatch.Groups['Name'].Value.Equals($Name, [System.StringComparison]::OrdinalIgnoreCase)) {
+      return $true
+    }
+
+    $tableMatch = [regex]::Match($line, '^\s*(?<Name>\S+)\s+https://\S+', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    if ($tableMatch.Success -and $tableMatch.Groups['Name'].Value.Equals($Name, [System.StringComparison]::OrdinalIgnoreCase)) {
+      return $true
+    }
+  }
+
+  return $false
+}
+
 function Test-WingetSourcePresent {
   [CmdletBinding()]
   param(
@@ -469,11 +531,10 @@ function Test-WingetSourcePresent {
   )
   $res = Invoke-Winget -WingetPath $WingetPath -WingetArgs @('source','list','-n',$Name)
   if ($res.ExitCode -eq 0) {
-    if ($res.StdOut -match [regex]::Escape($Name)) { return $true, "Found via 'source list -n'" }
-    return $true, "ExitCode=0 (assumed present)"
+    if (Test-WingetSourceOutputContainsName -Text $res.StdOut -Name $Name) { return $true, "Found via 'source list -n'" }
   }
   $res2 = Invoke-Winget -WingetPath $WingetPath -WingetArgs @('source','list')
-  if ($res2.ExitCode -eq 0 -and $res2.StdOut -match ("(?im)^\s*" + [regex]::Escape($Name) + "\b")) {
+  if ($res2.ExitCode -eq 0 -and (Test-WingetSourceOutputContainsName -Text $res2.StdOut -Name $Name)) {
     return $true, "Found via 'source list'"
   }
   $err = (($res.StdErr + "`n" + $res.StdOut).Trim())
@@ -487,19 +548,18 @@ function Ensure-PrivateSource {
     [string]$Name,
     [string]$Url,
     [string]$Type,
-    [switch]$DoIt,
-    [bool]$SupportAcceptSourceAgreementsForSourceUpdate
+    [switch]$DoIt
   )
   if ([string]::IsNullOrWhiteSpace($Name)) { return $false, "No private source name configured" }
   $present = $false; $detail = $null
   $present, $detail = Test-WingetSourcePresent -WingetPath $WingetPath -Name $Name
   if ($present) {
-    $up = Invoke-WingetSourceUpdate -WingetPath $WingetPath -SourceName $Name -SupportAcceptSourceAgreements:$SupportAcceptSourceAgreementsForSourceUpdate
-    if ($up.ExitCode -eq 0) { return $true, "Present; update OK" }
-    return $true, "Present; update failed (ec=$($up.ExitCode)): $(($up.StdErr + ' ' + $up.StdOut).Trim())"
+    return $true, 'Present'
   }
   if (-not $DoIt) { return $false, "Missing (no remediation). Detail: $detail" }
-  if ([string]::IsNullOrWhiteSpace($Url)) { return $false, "Missing and no URL configured. Detail: $detail" }
+  if (-not (Test-WingetPrivateSourceDefinition -Url $Url -Type $Type)) {
+    return $false, 'Private source must use a supported type and an absolute HTTPS endpoint path without credentials, query, or fragment components, or local, loopback, or link-local hosts. Configure authentication out of band.'
+  }
   $add = Invoke-Winget -WingetPath $WingetPath -WingetArgs @(
     'source','add',
     '-n', $Name,
@@ -519,8 +579,8 @@ $records = New-Object System.Collections.Generic.List[object]
 # - VC++ install paths are optional; remediation will log a clear error if missing.
 # - Private source stays policy-driven by RequirePrivateSource + parameter overrides.
 $cfgLoaded = $false
-$vcX64Path = $null
-$vcX86Path = $null
+$vcX64Path = $InstallerX64Path
+$vcX86Path = $InstallerX86Path
 $vcArgs    = $DefaultVcArgs
 $privName  = $PrivateSourceName
 $privUrl   = $PrivateSourceUrl
@@ -540,12 +600,10 @@ try {
   $cfg = Get-Config -Path $ConfigPath
   if ($cfg) {
     $cfgLoaded = $true
-    $tmp = Get-NestedPropValue -Object $cfg -Path @('VCppRedist','x64'); if ($tmp) { $vcX64Path = [string]$tmp }
-    $tmp = Get-NestedPropValue -Object $cfg -Path @('VCppRedist','x86'); if ($tmp) { $vcX86Path = [string]$tmp }
-    $tmp = Get-NestedPropValue -Object $cfg -Path @('VCppRedist','Args'); if ($tmp) { $vcArgs    = [string]$tmp }
-    if (-not $privName) { $tmp = Get-NestedPropValue -Object $cfg -Path @('Winget','PrivateSourceName'); if ($tmp) { $privName = [string]$tmp } }
-    if (-not $privUrl)  { $tmp = Get-NestedPropValue -Object $cfg -Path @('Winget','PrivateSourceUrl');  if ($tmp) { $privUrl  = [string]$tmp } }
-    $tmp = Get-NestedPropValue -Object $cfg -Path @('Winget','PrivateSourceType'); if ($tmp) { $privType = [string]$tmp }
+    if (-not $Remediate -and -not $privName) {
+      $tmp = Get-NestedPropValue -Object $cfg -Path @('Winget','PrivateSourceName')
+      if ($tmp) { $privName = [string]$tmp }
+    }
   }
   $configStatus = 'Warning'
   $configMsg = 'Not loaded. Using defaults/parameters.'
@@ -624,37 +682,45 @@ try {
       Add-Record -List $records -Record (Get-CheckRecord -Name 'PrivateSource' -Status 'Error' -Message 'Skipped (winget missing).')
     } else {
       $havePriv = $false; $privMsg = $null
-      $havePriv, $privMsg = Ensure-PrivateSource -WingetPath $wg -Name $privName -Url $privUrl -Type $privType -DoIt:$Remediate -SupportAcceptSourceAgreementsForSourceUpdate:$supportAcceptForSourceUpdate
+      $sourceMutationAuthorized = $Remediate -and
+        $PSBoundParameters.ContainsKey('PrivateSourceName') -and
+        $PSBoundParameters.ContainsKey('PrivateSourceUrl') -and
+        $PSCmdlet.ShouldProcess("WinGet source '$privName'", 'Add the source if it is missing')
+      $havePriv, $privMsg = Ensure-PrivateSource -WingetPath $wg -Name $privName -Url $privUrl -Type $privType -DoIt:$sourceMutationAuthorized
       $st = 'Error'
       if ($havePriv) { $st = 'OK' }
-      Add-Record -List $records -Record (Get-CheckRecord -Name 'PrivateSource' -Status $st -Message $privMsg -Data @{
-        Name = $privName; Url = $privUrl; Type = $privType
-      })
+      Add-Record -List $records -Record (Get-CheckRecord -Name 'PrivateSource' -Status $st -Message $privMsg -Data (Get-PrivateSourceResultMetadata -Name $privName -Type $privType))
     }
   } else {
     Add-Record -List $records -Record (Get-CheckRecord -Name 'PrivateSource' -Status 'Skipped' -Message 'Not required.')
   }
-  if ($wg) {
-    $upd = Invoke-WingetSourceUpdate -WingetPath $wg -SupportAcceptSourceAgreements:$supportAcceptForSourceUpdate
-    if ($upd.ExitCode -eq 0) {
-      Add-Record -List $records -Record (Get-CheckRecord -Name 'SourceUpdate' -Status 'OK' -Message 'OK.')
+  if ($wg -and $Remediate) {
+    if (-not $PSCmdlet.ShouldProcess('WinGet sources', 'Refresh source metadata')) {
+      Add-Record -List $records -Record (Get-CheckRecord -Name 'SourceUpdate' -Status 'Skipped' -Message 'Skipped by ShouldProcess.')
     } else {
-      $hex = Convert-ExitCodeToHex32 -ExitCode $upd.ExitCode
-      $diag = $null
-      if ($DiagnoseWingetErrors) { $diag = Get-WingetErrorText -WingetPath $wg -ExitCode $upd.ExitCode }
-      $st = 'Warning'
-      if ($FailOnSourceUpdateError) { $st = 'Error' }
-      Add-Record -List $records -Record (Get-CheckRecord -Name 'SourceUpdate' -Status $st -Message 'Failed.' -Data @{
-        ExitCode = $upd.ExitCode
-        ExitCodeHex = $hex
-        StdErr = $upd.StdErr.Trim()
-        StdOut = $upd.StdOut.Trim()
-        WingetError = $diag
-        Args = ($upd.Args -join ' ')
-      })
+      $upd = Invoke-WingetSourceUpdate -WingetPath $wg -SupportAcceptSourceAgreements:$supportAcceptForSourceUpdate
+      if ($upd.ExitCode -eq 0) {
+        Add-Record -List $records -Record (Get-CheckRecord -Name 'SourceUpdate' -Status 'OK' -Message 'OK.')
+      } else {
+        $hex = Convert-ExitCodeToHex32 -ExitCode $upd.ExitCode
+        $diag = $null
+        if ($DiagnoseWingetErrors) { $diag = Get-WingetErrorText -WingetPath $wg -ExitCode $upd.ExitCode }
+        $st = 'Warning'
+        if ($FailOnSourceUpdateError) { $st = 'Error' }
+        Add-Record -List $records -Record (Get-CheckRecord -Name 'SourceUpdate' -Status $st -Message 'Failed.' -Data @{
+          ExitCode = $upd.ExitCode
+          ExitCodeHex = $hex
+          StdErr = $upd.StdErr.Trim()
+          StdOut = $upd.StdOut.Trim()
+          WingetError = $diag
+          Args = ($upd.Args -join ' ')
+        })
+      }
     }
-  } else {
+  } elseif (-not $wg) {
     Add-Record -List $records -Record (Get-CheckRecord -Name 'SourceUpdate' -Status 'Skipped' -Message 'Skipped (winget missing).')
+  } else {
+    Add-Record -List $records -Record (Get-CheckRecord -Name 'SourceUpdate' -Status 'Skipped' -Message 'Skipped (audit mode).')
   }
 } catch {
   Add-Record -List $records -Record (Get-CheckRecord -Name 'UnhandledException' -Status 'Error' -Message $_.Exception.Message -Data @{

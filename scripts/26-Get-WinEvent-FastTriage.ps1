@@ -253,7 +253,7 @@ function Apply-ConfigOverrides {
   }
 
   if ($null -ne $Config.ExportPath -and -not [string]::IsNullOrWhiteSpace([string]$Config.ExportPath)) {
-    $script:ExportPath = [string]$Config.ExportPath
+    Write-Info 'Ignoring config ExportPath; provide the output location explicitly with -ExportPath.'
   }
 
   if ($null -ne $Config.Deduplicate) {
@@ -396,19 +396,12 @@ $exported = $false
 $exportError = $null
 if ($ExportPath) {
   try {
-    $dir = Split-Path -Path $ExportPath -Parent
-    if ($dir -and -not (Test-Path -LiteralPath $dir)) {
-      New-Item -Path $dir -ItemType Directory -Force | Out-Null
-    }
-
     if ($NormalizeMessage) {
-      $events |
-        Select-Object TimeCreated, LevelDisplayName, Id, ProviderName, LogName, RecordId, NormalizedMessage |
-        Export-Csv -Path $ExportPath -NoTypeInformation -Encoding UTF8 -ErrorAction Stop
+      Save-Csv -InputObject @($events |
+        Select-Object TimeCreated, LevelDisplayName, Id, ProviderName, LogName, RecordId, NormalizedMessage) -Path $ExportPath
     } else {
-      $events |
-        Select-Object TimeCreated, LevelDisplayName, Id, ProviderName, LogName, RecordId, Message |
-        Export-Csv -Path $ExportPath -NoTypeInformation -Encoding UTF8 -ErrorAction Stop
+      Save-Csv -InputObject @($events |
+        Select-Object TimeCreated, LevelDisplayName, Id, ProviderName, LogName, RecordId, Message) -Path $ExportPath
     }
 
     $exported = $true

@@ -62,16 +62,39 @@ function Save-Json {
   if (Validation\Test-PathTraversal -Path $Path) {
     throw 'Save-Json: Path must not contain path traversal segments ("..").'
   }
-
-  $dir = Split-Path -Path $Path -Parent
-  if (-not [string]::IsNullOrWhiteSpace($dir) -and -not (Test-Path -LiteralPath $dir)) {
-    [void][System.IO.Directory]::CreateDirectory([System.IO.Path]::GetFullPath($dir))
+  if (-not (Validation\Initialize-SafeOutputFilePath -Path $Path)) {
+    throw 'Save-Json: Path must reference a local file without traversal, UNC/device, or reparse-point components.'
   }
 
   $json = $InputObject | ConvertTo-Json -Depth $Depth
   $null = $NoBom
   $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
   [System.IO.File]::WriteAllText($Path, $json, $utf8NoBom)
+}
+
+function ConvertTo-CsvSafeCellValue {
+  [CmdletBinding()]
+  param([AllowNull()][object]$Value)
+
+  if ($Value -is [string] -and $Value -match '^[\s\x00-\x1F]*[=+\-@]') {
+    return "'$Value"
+  }
+  return $Value
+}
+
+function ConvertTo-CsvSafeObject {
+  [CmdletBinding()]
+  param([AllowNull()][object]$InputObject)
+
+  if ($null -eq $InputObject) {
+    return $null
+  }
+
+  $safeProperties = [ordered]@{}
+  foreach ($property in $InputObject.PSObject.Properties) {
+    $safeProperties[$property.Name] = ConvertTo-CsvSafeCellValue -Value $property.Value
+  }
+  return [pscustomobject]$safeProperties
 }
 
 <#
@@ -94,13 +117,14 @@ function Save-Csv {
   if (Validation\Test-PathTraversal -Path $Path) {
     throw 'Save-Csv: Path must not contain path traversal segments ("..").'
   }
-
-  $dir = Split-Path -Path $Path -Parent
-  if (-not [string]::IsNullOrWhiteSpace($dir) -and -not (Test-Path -LiteralPath $dir)) {
-    [void][System.IO.Directory]::CreateDirectory([System.IO.Path]::GetFullPath($dir))
+  if (-not (Validation\Initialize-SafeOutputFilePath -Path $Path)) {
+    throw 'Save-Csv: Path must reference a local file without traversal, UNC/device, or reparse-point components.'
   }
 
-  $lines = @($InputObject | ConvertTo-Csv -NoTypeInformation)
+  $safeInput = foreach ($item in $InputObject) {
+    ConvertTo-CsvSafeObject -InputObject $item
+  }
+  $lines = @($safeInput | ConvertTo-Csv -NoTypeInformation)
   $csv = if ($lines.Count -gt 0) { ($lines -join "`r`n") + "`r`n" } else { '' }
   $utf8Bom = New-Object System.Text.UTF8Encoding($true)
   [System.IO.File]::WriteAllText($Path, $csv, $utf8Bom)
@@ -219,6 +243,9 @@ function Get-V2OutputConfigurationError {
   }
   if (Test-Path -LiteralPath $OutputPath -PathType Container) {
     return 'OutputPath must reference a file, not a directory.'
+  }
+  if (-not (Validation\Test-SafeOutputFilePath -Path $OutputPath)) {
+    return 'OutputPath must reference a local file without traversal, UNC/device, or reparse-point components.'
   }
 
   return $null
